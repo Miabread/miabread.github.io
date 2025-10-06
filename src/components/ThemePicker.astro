@@ -1,0 +1,18 @@
+<script>
+    import { getTheme, setTheme } from '../scripts/theme';
+
+    for (const theme of ['system', 'dark', 'light'] as const) {
+        const button = document.getElementById(theme) as HTMLInputElement;
+        button.addEventListener('click', () => setTheme(theme));
+        if (theme === getTheme()) button.checked = true;
+    }
+</script>
+
+<div>
+    <input type="radio" name="theme" id="system" value="system" />
+    <label for="system">System</label>
+    <input type="radio" name="theme" id="dark" value="dark" />
+    <label for="dark">Dark</label>
+    <input type="radio" name="theme" id="light" value="light" />
+    <label for="light">Light</label>
+</div>
