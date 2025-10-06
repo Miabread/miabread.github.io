@@ -1,3 +1,7 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
 <script>
     import { getTheme, setTheme } from '../scripts/theme';
 
@@ -10,9 +14,18 @@
 
 <div>
     <input type="radio" name="theme" id="system" value="system" />
-    <label for="system">System</label>
+    <label for="system">
+        System
+        <Icon name="mdi:theme-light-dark" width="24" height="24" />
+    </label>
     <input type="radio" name="theme" id="dark" value="dark" />
-    <label for="dark">Dark</label>
+    <label for="dark">
+        Dark
+        <Icon name="mdi:weather-night" width="24" height="24" />
+    </label>
     <input type="radio" name="theme" id="light" value="light" />
-    <label for="light">Light</label>
+    <label for="light">
+        Light
+        <Icon name="mdi:weather-sunny" width="24" height="24" />
+    </label>
 </div>
