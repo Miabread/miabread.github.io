@@ -1,5 +1,5 @@
 import { createEffect, createSignal } from 'solid-js';
-import { getTheme as getGlobalTheme, setTheme as setGlobalTheme } from '../scripts/theme';
+import { getTheme as getGlobalTheme, setTheme as setGlobalTheme } from './theme';
 import IconThemeSystem from '~icons/mdi/theme-light-dark';
 import IconThemeDark from '~icons/mdi/weather-night';
 import IconThemeLight from '~icons/mdi/weather-sunny';

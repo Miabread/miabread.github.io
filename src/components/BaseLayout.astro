@@ -1,6 +1,6 @@
 ---
-import Sidebar from '../components/Sidebar.astro';
-import '../styles/global.css';
+import Sidebar from './sidebar/Sidebar.astro';
+import '../global.css';
 ---
 
 <!doctype html>
@@ -10,7 +10,7 @@ import '../styles/global.css';
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>miabread.github.io</title>
         <script>
-            import { updateTheme } from '../scripts/theme';
+            import { updateTheme } from './sidebar/theme';
             updateTheme();
         </script>
     </head>
