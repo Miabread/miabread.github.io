@@ -3,9 +3,26 @@ import BaseLayout from '../components/BaseLayout.astro';
 ---
 
 <BaseLayout>
-    <div class="w-full h-full flex items-center justify-center font-mono">
-        <div class="bg-amber-200 dark:bg-amber-700 shadow p-10 rounded-xl drop-shadow-xl">
-            <h1>Test content =></h1>
+    <div class="flex justify-center mt-20">
+        <div
+            class="grid grid-cols-5 gap-10 border-gray-200 dark:border-gray-600 p-10 border-10 rounded-xl drop-shadow-xl"
+        >
+            {
+                [...Array(15).keys()].map((i) => (
+                    <div>
+                        <div
+                            class="w-40 h-40 bg-amber-200 dark:bg-amber-700 shadow p-10 rounded-xl drop-shadow-xl"
+                            style={
+                                'background-color: ' +
+                                '#' +
+                                (((1 << 24) * Math.random()) | 0).toString(16).padStart(6, '0')
+                            }
+                        >
+                            <h1>Test content => {i}</h1>
+                        </div>
+                    </div>
+                ))
+            }
         </div>
     </div>
 </BaseLayout>
