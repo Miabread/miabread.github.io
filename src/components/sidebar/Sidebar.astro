@@ -4,17 +4,15 @@ import IconSelf from '~icons/mdi/person';
 import IconGitHub from '~icons/mdi/github';
 import IconLinkedin from '~icons/mdi/linkedin';
 import IconCode from '~icons/mdi/code';
-import IconAbout from '~icons/mdi/about';
 ---
 
 <nav
     class="bg-gray-200 dark:bg-gray-600 shrink p-5 m-10 w-auto whitespace-nowrap rounded-xl drop-shadow-xl text-2xl flex flex-col justify-center gap-1"
 >
-    <IconSelf class="text-gray-400 dark:text-gray-700" />
+    <IconSelf />
     <a href="https://github.com/Miabread/"><IconGitHub /></a>
-    <IconLinkedin class="text-gray-400 dark:text-gray-700" />
+    <IconLinkedin />
     <hr class="my-2" />
     <ThemePicker client:only />
     <a href="https://github.com/Miabread/miabread.github.io"><IconCode /></a>
-    <IconAbout class="text-gray-400 dark:text-gray-700" />
 </nav>
