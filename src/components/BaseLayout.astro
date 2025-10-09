@@ -19,27 +19,35 @@ import '../global.css';
             <aside class="h-screen sticky top-0 flex flex-col justify-center">
                 <Sidebar />
             </aside>
-            <main class="grow flex flex-col items-center">
+            <div class="grow flex flex-col items-center">
                 <nav class="w-1/2 flex justify-evenly mt-10">
                     {
                         ['Home', 'Projects', 'Blog'].map((title) => (
                             <h2
                                 class:list={[
-                                    'text-2xl bg-gray-200 dark:bg-gray-600 rounded-xl py-2 px-5 hover:underline mb-2 relative',
-                                    title === 'Home' && 'rounded-b-none !mb-0',
+                                    'text-2xl rounded-2xl py-2 px-5 hover:underline relative',
+                                    title === 'Home'
+                                        ? 'rounded-b-none mb-0 bg-gray-200 dark:bg-gray-600'
+                                        : 'mb-2 bg-gray-400 dark:bg-gray-800',
                                 ]}
                             >
                                 {title}
                                 {title === 'Home' && (
-                                    <div class="bg-transparent absolute w-10 h-5 bottom-0 -left-10 rounded-br-2xl shadow-[25px_0_0_0] shadow-gray-200 dark:shadow-gray-600"/>
-                                    <div class="bg-transparent absolute w-10 h-5 bottom-0 -right-10 rounded-bl-2xl shadow-[-25px_0_0_0] shadow-gray-200 dark:shadow-gray-600"/>
+                                    <>
+                                        <div class="bg-transparent absolute w-10 h-5 bottom-0 -left-10 rounded-br-2xl shadow-[25px_0_0_0] shadow-gray-200 dark:shadow-gray-600" />
+                                        <div class="bg-transparent absolute w-10 h-5 bottom-0 -right-10 rounded-bl-2xl shadow-[-25px_0_0_0] shadow-gray-200 dark:shadow-gray-600" />
+                                    </>
                                 )}
                             </h2>
                         ))
                     }
                 </nav>
-                <slot />
-            </main>
+                <main
+                    class="grid grid-cols-5 gap-10 border-gray-200 dark:border-gray-600 p-10 border-10 rounded-xl drop-shadow-xl"
+                >
+                    <slot />
+                </main>
+            </div>
         </div>
     </body>
 </html>

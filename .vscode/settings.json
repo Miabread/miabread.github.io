@@ -10,5 +10,9 @@
     "files.eol": "\n",
     "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][html][tailwindcss][css]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+    },
+    "[astro]": {
+        "editor.defaultFormatter": "astro-build.astro-vscode"
+    },
+    "cSpell.words": ["miabread"]
 }
