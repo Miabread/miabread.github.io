@@ -15,9 +15,11 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<BaseLayout>
-    <Prose>
-        <h1>{post.data.title}</h1>
-        <Content />
-    </Prose>
+<BaseLayout selected="Blog">
+    <div class="bg-gray-200 dark:bg-gray-600 p-10 rounded-xl w-full h-full">
+        <Prose>
+            <h1>{post.data.title}</h1>
+            <Content />
+        </Prose>
+    </div>
 </BaseLayout>
