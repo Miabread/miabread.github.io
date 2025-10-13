@@ -1,6 +1,6 @@
 ---
 import '../global.css';
-import Sidebar from './sidebar/Sidebar.astro';
+import Sidebar from '../components/sidebar/Sidebar.astro';
 
 const tabs = {
     Home: '/',
@@ -8,8 +8,8 @@ const tabs = {
     Blog: '/blog',
 };
 
-interface Props {
-    selected: keyof typeof tabs;
+export interface Props {
+    selected: keyof typeof tabs | 'none';
 }
 
 const { selected } = Astro.props;

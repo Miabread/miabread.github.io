@@ -1,0 +1,13 @@
+---
+import BaseLayout, { type Props } from '../layouts/BaseLayout.astro';
+
+const { selected } = Astro.props;
+---
+
+<BaseLayout selected={selected}>
+    <div class="bg-gray-200 dark:bg-gray-600 p-10 rounded-xl w-full h-full">
+        <article class="prose dark:prose-invert">
+            <slot />
+        </article>
+    </div>
+</BaseLayout>
