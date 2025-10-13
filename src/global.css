@@ -11,11 +11,11 @@
 
 /* Make sure both blurs are equal */
 body:before {
-    filter: blur(20px);
+    filter: blur(10px);
 }
 
 .dark body:before {
-    filter: blur(20px) brightness(0.7);
+    filter: blur(10px) brightness(0.7);
 }
 
 body:before {

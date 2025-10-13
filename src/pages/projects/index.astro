@@ -1,16 +1,19 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../components/BaseLayout.astro';
+
+const allProjects = await getCollection('projects');
 ---
 
 <BaseLayout selected="Projects">
-    <div class="grid grid-cols-5 gap-10">
+    <div class="flex flex-col gap-5">
         {
-            [...Array(15).keys()].map((i) => (
-                <div
-                    class="w-40 h-40 p-5 rounded-xl drop-shadow-xl"
-                    style={'background-color: #' + (((1 << 24) * Math.random()) | 0).toString(16).padStart(6, '0')}
-                >
-                    <h1>Test content => {i}</h1>
+            allProjects.map((post) => (
+                <div class="bg-gray-200 dark:bg-gray-600 p-5 rounded-xl">
+                    <a href={`/projects/${post.id}`} class="text-xl font-bold hover:underline">
+                        <h3>{post.data.title}</h3>
+                    </a>
+                    {post.data.summary}
                 </div>
             ))
         }
