@@ -1,5 +1,5 @@
 ---
-title: Testing 2
+title: Test Blog 2
 summary: woof woof woof
 publishDate: 2025-10-13
 updateDate: 2025-10-13
