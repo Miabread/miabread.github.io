@@ -1,6 +1,18 @@
 ---
-import Sidebar from './sidebar/Sidebar.astro';
 import '../global.css';
+import Sidebar from './sidebar/Sidebar.astro';
+
+const tabs = {
+    Home: '/',
+    Projects: '/projects',
+    Blog: '/blog',
+};
+
+interface Props {
+    selected: keyof typeof tabs;
+}
+
+const { selected } = Astro.props;
 ---
 
 <!doctype html>
@@ -9,9 +21,13 @@ import '../global.css';
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>miabread.github.io</title>
-        <script>
-            import { updateTheme } from './sidebar/theme';
-            updateTheme();
+        <script is:inline>
+            const theme = localStorage.getItem('theme') ?? 'system';
+
+            const darkThemeEnabled =
+                theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+            document.documentElement.classList.toggle('dark', darkThemeEnabled);
         </script>
     </head>
     <body class="text-black dark:text-white">
@@ -22,29 +38,30 @@ import '../global.css';
             <div class="grow flex flex-col items-center">
                 <nav class="w-1/2 flex justify-evenly mt-10">
                     {
-                        ['Home', 'Projects', 'Blog'].map((title) => (
-                            <h2
+                        (Object.keys(tabs) as (keyof typeof tabs)[]).map((title) => (
+                            <div
                                 class:list={[
-                                    'text-2xl rounded-2xl py-2 px-5 hover:underline relative',
-                                    title === 'Home'
+                                    'rounded-2xl py-2 px-5 relative',
+                                    title === selected
                                         ? 'rounded-b-none mb-0 bg-gray-200 dark:bg-gray-600'
                                         : 'mb-2 bg-gray-400 dark:bg-gray-800',
                                 ]}
                             >
-                                {title}
-                                {title === 'Home' && (
+                                <a href={tabs[title]} class="text-2xl hover:underline">
+                                    <h2>{title}</h2>
+                                </a>
+
+                                {title === selected && (
                                     <>
                                         <div class="bg-transparent absolute w-10 h-5 bottom-0 -left-10 rounded-br-2xl shadow-[25px_0_0_0] shadow-gray-200 dark:shadow-gray-600" />
                                         <div class="bg-transparent absolute w-10 h-5 bottom-0 -right-10 rounded-bl-2xl shadow-[-25px_0_0_0] shadow-gray-200 dark:shadow-gray-600" />
                                     </>
                                 )}
-                            </h2>
+                            </div>
                         ))
                     }
                 </nav>
-                <main
-                    class="grid grid-cols-5 gap-10 border-gray-200 dark:border-gray-600 p-10 border-10 rounded-xl drop-shadow-xl"
-                >
+                <main class="border-gray-200 dark:border-gray-600 p-10 border-10 rounded-xl drop-shadow-xl">
                     <slot />
                 </main>
             </div>
