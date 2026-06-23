@@ -1,15 +1,17 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+
 ---
 
-<BaseLayout selected="Home">
-    <div class="grid grid-cols-4 gap-10">
-        {
-            [...Array(20).keys()].map((i) => (
-                <div class="w-40 h-40 p-5 rounded-xl drop-shadow-xl bg-pink-200 dark:bg-pink-400 dark:bg">
-                    <h1>Placeholder Icon #{i + 1}</h1>
-                </div>
-            ))
-        }
-    </div>
-</BaseLayout>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Astro</title>
+    </head>
+    <body>
+        <h1>Astro</h1>
+    </body>
+</html>
