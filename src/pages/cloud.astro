@@ -20,7 +20,7 @@ const cssVariables = {
 };
 ---
 
-<div id="cloud"></div>
+<div class="cloud"></div>
 <svg width="0" height="0">
     <filter id={filterBack}>
         <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="4" result="noise" seed={seed}>
@@ -42,9 +42,9 @@ const cssVariables = {
     </filter>
 </svg>
 <style define:vars={cssVariables}>
-    #cloud,
-    #cloud::before,
-    #cloud::after {
+    .cloud,
+    .cloud::before,
+    .cloud::after {
         width: 500px;
         height: 275px;
         border-radius: 50%;
@@ -53,20 +53,20 @@ const cssVariables = {
         left: 0;
     }
 
-    #cloud {
+    .cloud {
         filter: var(--filterBack);
         box-shadow: 300px 300px 30px -20px #ffbd91;
         top: var(--top);
         left: var(--left);
     }
 
-    #cloud::before {
+    .cloud::before {
         content: '';
         filter: var(--filterMid);
         box-shadow: 300px 340px 70px -60px #ff8d71;
     }
 
-    #cloud::after {
+    .cloud::after {
         content: '';
         filter: var(--filterFront);
         box-shadow: 300px 370px 60px -100px #ff707e;
