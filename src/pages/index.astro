@@ -1,5 +1,5 @@
 ---
-
+import Cloud from './cloud.astro';
 ---
 
 <html lang="en">
@@ -19,56 +19,8 @@
                 overflow: hidden;
                 margin: 0;
             }
-
-            #cloud,
-            #cloud::before,
-            #cloud::after {
-                width: 500px;
-                height: 275px;
-                border-radius: 50%;
-                position: absolute;
-                top: 0;
-                left: 0;
-            }
-
-            #cloud {
-                filter: url(#filter-back);
-                box-shadow: 300px 300px 30px -20px #ffbd91;
-                top: -30vh;
-                left: -20vw;
-            }
-
-            #cloud::before {
-                content: '';
-                filter: url(#filter-mid);
-                box-shadow: 300px 340px 70px -60px #ff8d71;
-            }
-
-            #cloud::after {
-                content: '';
-                filter: url(#filter-front);
-                box-shadow: 300px 370px 60px -100px #ff707e;
-            }
         </style>
-
-        <svg width="0" height="0">
-            <filter id="filter-back" color-interpolation-filters="sRGB">
-                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="4" result="noise"></feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="170" xChannelSelector="R" yChannelSelector="G">
-                </feDisplacementMap>
-            </filter>
-            <filter id="filter-mid" color-interpolation-filters="sRGB">
-                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" result="noise"></feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="150" xChannelSelector="R" yChannelSelector="G">
-                </feDisplacementMap>
-            </filter>
-            <filter id="filter-front" color-interpolation-filters="sRGB">
-                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" result="noise"></feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="100" xChannelSelector="R" yChannelSelector="G">
-                </feDisplacementMap>
-            </filter>
-        </svg>
-
-        <div id="cloud"></div>
+        <Cloud top={-20} left={-20} seed={123} />
+        <Cloud top={10} left={20} seed={4567} />
     </body>
 </html>
