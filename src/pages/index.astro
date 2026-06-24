@@ -1,26 +1,77 @@
 ---
+import 'normalize.css';
 import Cloud from './cloud.astro';
 ---
 
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="generator" content={Astro.generator} />
         <title>miabread.github.io</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap" rel="stylesheet" />
     </head>
     <body>
         <style>
+            html,
             body {
-                width: 100vw;
-                height: 100vh;
-                background: linear-gradient(165deg, #527785 0%, #527785 100%);
-                padding: 1%;
-                overflow: hidden;
+                font-family: 'Fira Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
                 margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100dvh;
+                overflow-x: hidden;
+                position: relative;
+
+                background: linear-gradient(165deg, #527785 0%, #527785 100%);
+            }
+
+            .glass {
+                background-color: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(10px);
+                border-radius: 1rem;
+                padding: 1rem;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
+                color: white;
+            }
+
+            .main {
+                margin: 2rem;
             }
         </style>
         <Cloud top={-20} left={-20} seed={123} />
         <Cloud top={10} left={20} seed={4567} />
+
+        <div class="glass main">
+            <p>
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dicta quibusdam necessitatibus repudiandae
+                similique voluptates quisquam sunt quasi delectus unde vitae distinctio in non sit eos nulla minima
+                temporibus, accusamus veniam? Eius nihil ab aspernatur quisquam consequuntur, ex, eaque exercitationem
+                voluptatum cumque, accusamus dolorem totam molestias ratione sunt. Itaque, aliquam non.
+            </p>
+            <p>
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ducimus ipsum odit atque dolor quod laborum at
+                distinctio labore itaque, deserunt fugit tenetur eum totam praesentium, aliquid eos velit ipsa tempore
+                voluptatum magni nam non doloremque repudiandae. Quaerat quos voluptatem possimus, rerum deleniti minima
+                cumque, autem non quidem fugiat voluptas maxime eum repudiandae! Impedit laboriosam molestias voluptas
+                quo cum repellendus tempore ducimus quaerat eos qui tenetur quidem quas, pariatur facere, blanditiis
+                architecto odit itaque nulla, laborum necessitatibus quam? Magni, expedita quibusdam voluptates
+                recusandae quisquam aspernatur optio voluptatem quas, porro repellat dignissimos qui accusantium
+                excepturi esse ab veritatis pariatur ipsa illum quam.
+            </p>
+            <p>
+                Consequatur hic minus provident, autem ex vero culpa odio, molestias doloremque sapiente praesentium ab?
+                Aliquam aperiam voluptatum quae doloremque veritatis odit neque dolore quam animi? Porro totam excepturi
+                sit saepe maiores mollitia id vitae nihil ipsam quas ipsum laboriosam accusamus impedit, hic officia
+                asperiores! Quaerat impedit optio ducimus, labore enim ipsa eaque deserunt aperiam quam delectus cum
+                corporis eum tempore excepturi pariatur itaque totam, cumque animi nam? Laudantium inventore dicta nobis
+                doloribus, quos fugiat a? Eos, perspiciatis voluptates nemo, minus libero voluptatum cupiditate eius
+                blanditiis, velit fuga quasi harum. Assumenda, ea iste labore harum est dolore id sunt totam tempore?
+            </p>
+        </div>
     </body>
 </html>
