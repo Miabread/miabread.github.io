@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Box from '../../components/Box.astro';
+import Box2 from '../../components/Box2.astro';
+
+const projects = await getCollection('projects');
+---
+
+<Layout title="Projects">
+    <Box>
+        <h1>My Projects</h1>
+        <div>
+            {
+                projects.map((project) => (
+                    <Box2>
+                        <h2>{project.data.title}</h2>
+                    </Box2>
+                ))
+            }
+        </div>
+    </Box>
+</Layout>

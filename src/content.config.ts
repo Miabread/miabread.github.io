@@ -9,8 +9,10 @@ const projects = defineCollection({
     schema: z.object({
         title: z.string(),
         description: z.string(),
-        pubDate: z.coerce.date(),
-        updatedDate: z.coerce.date().optional(),
+        publishDate: z.coerce.date(),
+        updateDate: z.coerce.date().optional(),
+        liveLink: z.url().optional(),
+        repoLink: z.url().optional(),
     }),
 });
 

@@ -1,25 +1,11 @@
 ---
 import 'normalize.css';
 import Layout from '../layouts/Layout.astro';
+import Box from '../components/Box.astro';
 ---
 
-<Layout title="Miabread">
-    <style>
-        .glass {
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            padding: 1rem;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
-            color: white;
-        }
-
-        .main {
-            margin: 2rem;
-        }
-    </style>
-    <div class="glass main">
+<Layout title="Home">
+    <Box>
         <p>
             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dicta quibusdam necessitatibus repudiandae
             similique voluptates quisquam sunt quasi delectus unde vitae distinctio in non sit eos nulla minima
@@ -45,5 +31,5 @@ import Layout from '../layouts/Layout.astro';
             fugiat a? Eos, perspiciatis voluptates nemo, minus libero voluptatum cupiditate eius blanditiis, velit fuga
             quasi harum. Assumenda, ea iste labore harum est dolore id sunt totam tempore?
         </p>
-    </div>
+    </Box>
 </Layout>
