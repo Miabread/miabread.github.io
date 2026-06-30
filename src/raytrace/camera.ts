@@ -2,16 +2,18 @@ import { Ray, type Hittable } from './hittable';
 import { Interval, Vec3, type Point3 } from './util';
 
 export class Camera {
+    public imageWidth: number;
     public imageHeight: number;
+    public samplesPerPixel = 10;
+    public maxDepth = 10;
+
     private center: Point3;
     private upperLeftPixelLocation: Point3;
     private pixelDeltaU: Vec3;
     private pixelDeltaV: Vec3;
 
-    constructor(
-        public imageWidth: number,
-        aspectRatio: number,
-    ) {
+    constructor(imageWidth: number, aspectRatio: number) {
+        this.imageWidth = imageWidth;
         this.imageHeight = Math.max(1, Math.trunc(this.imageWidth / aspectRatio));
 
         const focalLength = 1.0;
@@ -38,26 +40,50 @@ export class Camera {
     public render(world: Hittable, data: ImageDataArray) {
         for (let j = 0; j < this.imageHeight; j++) {
             for (let i = 0; i < this.imageWidth; i++) {
-                const pixelCenter = this.upperLeftPixelLocation
-                    .plus(this.pixelDeltaU.times(i))
-                    .plus(this.pixelDeltaV.times(j));
-                const rayDirection = pixelCenter.minus(this.center);
-                const r = new Ray(this.center, rayDirection);
-                const pixelColor = this.rayColor(r, world);
+                let pixelColor = Vec3.zero;
+
+                for (let sample = 0; sample < this.samplesPerPixel; sample++) {
+                    const r = this.getRay(i, j);
+                    pixelColor = pixelColor.plus(this.rayColor(r, this.maxDepth, world));
+                }
+
+                const intensity = new Interval(0.0, 0.999);
+                const finalPixelColor = pixelColor
+                    .times(1 / this.samplesPerPixel)
+                    .map((n) => Math.floor(256 * intensity.clamp(Math.sqrt(n))));
 
                 const index = (j * this.imageWidth + i) * 4;
-                data[index + 0] = Math.floor(pixelColor.r * 255.999);
-                data[index + 1] = Math.floor(pixelColor.g * 255.999);
-                data[index + 2] = Math.floor(pixelColor.b * 255.999);
+                data[index + 0] = finalPixelColor.r;
+                data[index + 1] = finalPixelColor.g;
+                data[index + 2] = finalPixelColor.b;
                 data[index + 3] = 255;
             }
         }
     }
 
-    private rayColor(r: Ray, world: Hittable) {
-        const rec = world.hit(r, new Interval(0, Infinity));
+    private getRay(i: number, j: number) {
+        const offset = this.sampleSquare();
+        const pixelSample = this.upperLeftPixelLocation
+            .plus(this.pixelDeltaU.times(i + offset.x))
+            .plus(this.pixelDeltaV.times(j + offset.y));
+
+        return new Ray(this.center, pixelSample.minus(this.center));
+    }
+
+    private sampleSquare() {
+        const interval = new Interval(-0.5, 0.5);
+        return new Vec3(interval.random(), interval.random(), 0);
+    }
+
+    private rayColor(r: Ray, depth: number, world: Hittable): Vec3 {
+        if (depth <= 0) {
+            return Vec3.zero;
+        }
+
+        const rec = world.hit(r, new Interval(0.001, Infinity));
         if (rec) {
-            return rec.normal.plus(1).times(0.5);
+            const direction = rec.normal.plus(Vec3.randomUnitVector());
+            return this.rayColor(new Ray(r.origin, direction), depth - 1, world).times(0.5);
         }
 
         const unitDirection = r.direction.unitVector;

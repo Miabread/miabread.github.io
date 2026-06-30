@@ -9,6 +9,22 @@ export class Vec3 {
         public z: number,
     ) {}
 
+    static random(interval: Interval): Vec3 {
+        return new Vec3(interval.random(), interval.random(), interval.random());
+    }
+    static randomUnitVector(): Vec3 {
+        while (true) {
+            const p = Vec3.random(new Interval(-1, 1));
+            if (1e-600 < p.lengthSquared && p.lengthSquared <= 1) {
+                return p.div(Math.sqrt(p.lengthSquared));
+            }
+        }
+    }
+    static randomOnHemisphere(normal: Vec3): Vec3 {
+        const onUnitSphere = this.randomUnitVector();
+        return onUnitSphere.dot(normal) > 0.0 ? onUnitSphere : onUnitSphere.neg;
+    }
+
     get r() {
         return this.x;
     }
@@ -56,6 +72,9 @@ export class Vec3 {
         }
         return new Vec3(this.x / input.x, this.y / input.y, this.z / input.z);
     }
+    public map(func: (n: number) => number): Vec3 {
+        return new Vec3(func(this.x), func(this.y), func(this.z));
+    }
 
     public dot(input: Vec3): number {
         return this.x * input.x + this.y * input.y + this.z * input.z;
@@ -78,6 +97,9 @@ export class Interval {
     }
     static get full() {
         return new Interval(-Infinity, +Infinity);
+    }
+    static get unit() {
+        return new Interval(0, 1);
     }
 
     constructor(
