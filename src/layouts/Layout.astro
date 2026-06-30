@@ -17,8 +17,18 @@ const { title } = Astro.props;
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap" rel="stylesheet" />
+        <script src="./background.ts"></script>
     </head>
     <body>
+        <svg aria-hidden="true" style="position: absolute; width: 0; height: 0;">
+            <filter id="pixelate" x="0%" y="0%" width="100%" height="100%">
+                <feComponentTransfer>
+                    <feFuncR type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1"></feFuncR>
+                    <feFuncG type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1"></feFuncG>
+                    <feFuncB type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1"></feFuncB>
+                </feComponentTransfer>
+            </filter>
+        </svg>
         <style>
             html,
             body {
@@ -26,12 +36,29 @@ const { title } = Astro.props;
 
                 margin: 0;
                 padding: 0;
-                width: 100%;
-                height: 100dvh;
+                width: 100vw;
+                height: 100vh;
                 overflow-x: hidden;
-                position: relative;
 
-                background: linear-gradient(165deg, #527785 0%, #789dac 60%, #ffbd91 70%, #ff8d71 80%, #ff707e 95%);
+                /* background: linear-gradient(
+                    165deg,
+                    #527785 0%,
+                    #527785 60%,
+                    #789dac 60%,
+                    #789dac 70%,
+                    #ffbd91 70%,
+                    #ffbd91 80%,
+                    #ff8d71 80%,
+                    #ff8d71 95%,
+                    #ff707e 95%,
+                    #ff707e 100%
+                ); */
+
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
             }
         </style>
         <slot />
