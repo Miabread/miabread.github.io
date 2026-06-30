@@ -82,3 +82,29 @@ export class Ray {
         return this.origin.plus(this.direction.times(t));
     }
 }
+
+export class Interval {
+    static get empty() {
+        return new Interval(+Infinity, -Infinity);
+    }
+    static get full() {
+        return new Interval(-Infinity, +Infinity);
+    }
+
+    constructor(
+        public min: number,
+        public max: number,
+    ) {}
+
+    get size() {
+        return this.max - this.min;
+    }
+
+    public contains(x: number) {
+        return this.min <= x && x <= this.max;
+    }
+
+    public surrounds(x: number) {
+        return this.min < x && x < this.max;
+    }
+}

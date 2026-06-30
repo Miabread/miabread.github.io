@@ -1,4 +1,4 @@
-import { Ray, Vec3, type Point3 } from './vec3';
+import { Interval, Ray, Vec3, type Point3 } from './vec3';
 
 class HitRecord {
     public normal: Vec3;
@@ -17,7 +17,7 @@ class HitRecord {
 }
 
 abstract class Hittable {
-    public abstract hit(r: Ray, rayTMin: number, rayTMax: number): HitRecord | null;
+    public abstract hit(r: Ray, rayT: Interval): HitRecord | null;
 }
 
 class Sphere extends Hittable {
@@ -28,7 +28,7 @@ class Sphere extends Hittable {
         super();
     }
 
-    public override hit(r: Ray, rayTMin: number, rayTMax: number): HitRecord | null {
+    public override hit(r: Ray, rayT: Interval): HitRecord | null {
         // Heavily optimized code version of using the quadratic formula to solve sphere equation x^2+y^2+z^2=r^2 using vectors
         const oc = this.center.minus(r.origin);
         const a = r.direction.lengthSquared;
@@ -39,16 +39,11 @@ class Sphere extends Hittable {
 
         const sqrtD = Math.sqrt(discriminant);
 
-        // Find nearest root in range
-        let root = (h - sqrtD) / a;
-        if (root <= rayTMin || rayTMax <= root) {
-            root = (h + sqrtD) / a;
-            if (root <= rayTMin || rayTMax <= root) {
-                return null;
-            }
-        }
+        const root1 = (h - sqrtD) / a;
+        const root2 = (h + sqrtD) / a;
+        const root = rayT.surrounds(root1) ? root1 : rayT.surrounds(root2) ? root2 : null;
+        if (!root) return null;
 
-        // Update hit record
         const t = root;
         const p = r.at(t);
         const outwardNormal = p.minus(this.center).div(this.radius);
@@ -62,12 +57,12 @@ class HittableList extends Hittable {
         super();
     }
 
-    public hit(r: Ray, rayTMin: number, rayTMax: number): HitRecord | null {
+    public hit(r: Ray, rayT: Interval): HitRecord | null {
         let rec = null;
-        let closestSoFar = rayTMax;
+        let closestSoFar = rayT.max;
 
         for (const object of this.objects) {
-            const tempRec = object.hit(r, rayTMin, closestSoFar);
+            const tempRec = object.hit(r, new Interval(rayT.min, closestSoFar));
             if (tempRec) {
                 rec = tempRec;
                 closestSoFar = tempRec.t;
@@ -95,7 +90,7 @@ const hitSphere = (center: Point3, radius: number, r: Ray) => {
 };
 
 const rayColor = (r: Ray, world: Hittable) => {
-    const rec = world.hit(r, 0, Infinity);
+    const rec = world.hit(r, new Interval(0, Infinity));
     if (rec) {
         return rec.normal.plus(1).times(0.5);
     }
