@@ -72,17 +72,6 @@ export class Vec3 {
 export type Point3 = Vec3;
 export type Color3 = Vec3;
 
-export class Ray {
-    constructor(
-        public origin: Point3,
-        public direction: Vec3,
-    ) {}
-
-    public at(t: number): Point3 {
-        return this.origin.plus(this.direction.times(t));
-    }
-}
-
 export class Interval {
     static get empty() {
         return new Interval(+Infinity, -Infinity);

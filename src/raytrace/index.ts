@@ -1,93 +1,5 @@
-import { Interval, Ray, Vec3, type Point3 } from './vec3';
-
-class HitRecord {
-    public normal: Vec3;
-    public frontFace: boolean;
-
-    constructor(
-        public t: number,
-        public p: Point3,
-
-        r: Ray,
-        outwardNormal: Vec3,
-    ) {
-        this.frontFace = r.direction.dot(outwardNormal) < 0;
-        this.normal = this.frontFace ? outwardNormal : outwardNormal.neg;
-    }
-}
-
-abstract class Hittable {
-    public abstract hit(r: Ray, rayT: Interval): HitRecord | null;
-}
-
-class Sphere extends Hittable {
-    constructor(
-        public center: Point3,
-        public radius: number,
-    ) {
-        super();
-    }
-
-    public override hit(r: Ray, rayT: Interval): HitRecord | null {
-        // Heavily optimized code version of using the quadratic formula to solve sphere equation x^2+y^2+z^2=r^2 using vectors
-        const oc = this.center.minus(r.origin);
-        const a = r.direction.lengthSquared;
-        const h = r.direction.dot(oc);
-        const c = oc.lengthSquared - this.radius ** 2;
-        const discriminant = h * h - a * c;
-        if (discriminant < 0) return null;
-
-        const sqrtD = Math.sqrt(discriminant);
-
-        const root1 = (h - sqrtD) / a;
-        const root2 = (h + sqrtD) / a;
-        const root = rayT.surrounds(root1) ? root1 : rayT.surrounds(root2) ? root2 : null;
-        if (!root) return null;
-
-        const t = root;
-        const p = r.at(t);
-        const outwardNormal = p.minus(this.center).div(this.radius);
-
-        return new HitRecord(t, p, r, outwardNormal);
-    }
-}
-
-class HittableList extends Hittable {
-    constructor(public objects: Hittable[]) {
-        super();
-    }
-
-    public hit(r: Ray, rayT: Interval): HitRecord | null {
-        let rec = null;
-        let closestSoFar = rayT.max;
-
-        for (const object of this.objects) {
-            const tempRec = object.hit(r, new Interval(rayT.min, closestSoFar));
-            if (tempRec) {
-                rec = tempRec;
-                closestSoFar = tempRec.t;
-            }
-        }
-
-        return rec;
-    }
-}
-
-const hitSphere = (center: Point3, radius: number, r: Ray) => {
-    const oc = center.minus(r.origin);
-
-    // Heavily optimized code version of using the quadratic formula to solve sphere equation x^2+y^2+z^2=r^2 using vectors
-    const a = r.direction.lengthSquared;
-    const h = r.direction.dot(oc);
-    const c = oc.lengthSquared - radius * radius;
-    const discriminant = h * h - a * c;
-
-    if (discriminant < 0) {
-        return -1.0;
-    }
-
-    return (h - Math.sqrt(discriminant)) / a;
-};
+import { Hittable, HittableList, Sphere, Ray } from './hittable';
+import { Interval, Vec3 } from './util';
 
 const rayColor = (r: Ray, world: Hittable) => {
     const rec = world.hit(r, new Interval(0, Infinity));
@@ -107,7 +19,7 @@ const main = () => {
 
     // Image math
     const aspectRatio = window.innerWidth / window.innerHeight;
-    const imageWidth = 400;
+    const imageWidth = 64;
     const imageHeight = Math.max(1, Math.trunc(imageWidth / aspectRatio));
     canvas.width = imageWidth;
     canvas.height = imageHeight;
