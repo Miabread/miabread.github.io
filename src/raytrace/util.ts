@@ -96,4 +96,14 @@ export class Interval {
     public surrounds(x: number) {
         return this.min < x && x < this.max;
     }
+
+    public clamp(x: number) {
+        if (x < this.min) return this.min;
+        if (x > this.max) return this.max;
+        return x;
+    }
+
+    public random() {
+        return Math.random() * this.size + this.min;
+    }
 }
