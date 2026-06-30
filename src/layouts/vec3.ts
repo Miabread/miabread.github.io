@@ -19,17 +19,17 @@ export class Vec3 {
         return this.z;
     }
 
-    get squaredLength() {
+    get lengthSquared() {
         return this.x ** 2 + this.y ** 2 + this.z ** 2;
     }
     get length() {
-        return Math.sqrt(this.squaredLength);
+        return Math.sqrt(this.lengthSquared);
     }
     get unitVector() {
         return this.div(this.length);
     }
 
-    public neg(): Vec3 {
+    get neg(): Vec3 {
         return new Vec3(-this.x, -this.y, -this.z);
     }
     public plus(input: Vec3 | number): Vec3 {
