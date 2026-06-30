@@ -1,3 +1,4 @@
+import type { Material } from './material';
 import { type Point3, type Vec3, Interval } from './util';
 
 export class Ray {
@@ -16,6 +17,7 @@ export class HitRecord {
     public frontFace: boolean;
 
     constructor(
+        public mat: Material,
         public t: number,
         public p: Point3,
 
@@ -35,6 +37,7 @@ export class Sphere extends Hittable {
     constructor(
         public center: Point3,
         public radius: number,
+        public mat: Material,
     ) {
         super();
     }
@@ -59,7 +62,7 @@ export class Sphere extends Hittable {
         const p = r.at(t);
         const outwardNormal = p.minus(this.center).div(this.radius);
 
-        return new HitRecord(t, p, r, outwardNormal);
+        return new HitRecord(this.mat, t, p, r, outwardNormal);
     }
 }
 

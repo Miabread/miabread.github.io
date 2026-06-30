@@ -80,10 +80,13 @@ export class Camera {
             return Vec3.zero;
         }
 
-        const rec = world.hit(r, new Interval(0.001, Infinity));
-        if (rec) {
-            const direction = rec.normal.plus(Vec3.randomUnitVector());
-            return this.rayColor(new Ray(r.origin, direction), depth - 1, world).times(0.5);
+        const hitRecord = world.hit(r, new Interval(0.001, Infinity));
+        if (hitRecord) {
+            const matRecord = hitRecord.mat.scatter(r, hitRecord);
+            if (matRecord) {
+                return matRecord.attenuation.times(this.rayColor(matRecord.scattered, depth - 1, world));
+            }
+            return Vec3.zero;
         }
 
         const unitDirection = r.direction.unitVector;

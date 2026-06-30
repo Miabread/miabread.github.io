@@ -44,6 +44,10 @@ export class Vec3 {
     get unitVector() {
         return this.div(this.length);
     }
+    get nearZero() {
+        const eps = 1e-8;
+        return Math.abs(this.x) < eps && Math.abs(this.y) < eps && Math.abs(this.z) < eps;
+    }
 
     get neg(): Vec3 {
         return new Vec3(-this.x, -this.y, -this.z);
@@ -85,6 +89,9 @@ export class Vec3 {
             this.z * input.x - this.x * input.z,
             this.x * input.y - this.y * input.x,
         );
+    }
+    public reflect(input: Vec3): Vec3 {
+        return this.minus(input.times(2 * this.dot(input)));
     }
 }
 
