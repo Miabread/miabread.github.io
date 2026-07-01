@@ -100,8 +100,12 @@ export class Vec3 {
         }
         return new Vec3(this.x / input.x, this.y / input.y, this.z / input.z);
     }
+
     public map(func: (n: number) => number): Vec3 {
         return new Vec3(func(this.x), func(this.y), func(this.z));
+    }
+    public fold<R>(func: (x: number, y: number, z: number) => R): R {
+        return func(this.x, this.y, this.z);
     }
 
     public dot(input: Vec3): number {

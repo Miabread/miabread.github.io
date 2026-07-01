@@ -133,7 +133,7 @@ export class Camera {
 
         const hitRecord = world.hit(r, new Interval(0.001, Infinity));
         if (hitRecord) {
-            const matRecord = hitRecord.mat.scatter(r, hitRecord);
+            const matRecord = hitRecord.material.scatter(r, hitRecord);
             if (matRecord) {
                 return matRecord.attenuation.times(this.rayColor(matRecord.scattered, depth - 1, world));
             }

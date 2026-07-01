@@ -1,19 +1,19 @@
 import { Camera } from './camera';
-import { scene1, scene2, scene3 } from './scene';
+import * as scenes from './scene';
 
 const main = async () => {
     // Html5 Canvas our beloved
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    const scene = scene3();
+    const scene = scenes.checkeredSpheres();
 
     // Setup camera
     const camera = new Camera(
         {
             imageWidth: 400,
             aspectRatio: window.innerWidth / window.innerHeight,
-            samplesPerPixel: 100,
+            samplesPerPixel: 10,
             maxDepth: 50,
         },
         scene.cameraOptions,

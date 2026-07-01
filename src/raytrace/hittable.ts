@@ -12,45 +12,60 @@ export class Ray {
     }
 }
 
-export class HitRecord {
+interface HitResultOptions {
+    material: Material;
+    t: number;
+    point: Point3;
+    ray: Ray;
+    outwardNormal: Vec3;
+    u: number;
+    v: number;
+}
+
+export class HitResult {
+    public material: Material;
+    public t: number;
+    public point: Point3;
+    public u: number;
+    public v: number;
+
     public normal: Vec3;
     public frontFace: boolean;
 
-    constructor(
-        public mat: Material,
-        public t: number,
-        public p: Point3,
+    constructor(options: HitResultOptions) {
+        this.material = options.material;
+        this.t = options.t;
+        this.point = options.point;
+        this.u = options.u;
+        this.v = options.v;
 
-        r: Ray,
-        outwardNormal: Vec3,
-    ) {
-        this.frontFace = r.direction.dot(outwardNormal) < 0;
-        this.normal = this.frontFace ? outwardNormal : outwardNormal.neg;
+        this.frontFace = options.ray.direction.dot(options.outwardNormal) < 0;
+        this.normal = this.frontFace ? options.outwardNormal : options.outwardNormal.neg;
     }
 }
 
 export abstract class Hittable {
     public boundingBox = BoundingBox.empty;
 
-    public abstract hit(r: Ray, rayT: Interval): HitRecord | null;
+    public abstract hit(ray: Ray, rayT: Interval): HitResult | null;
 }
 
 export class Sphere extends Hittable {
     constructor(
         public center: Point3,
         public radius: number,
-        public mat: Material,
+        public material: Material,
     ) {
         super();
         const radiusVec = Vec3.of(this.radius);
         this.boundingBox = BoundingBox.corners(this.center.minus(radiusVec), this.center.plus(radiusVec));
     }
 
-    public override hit(r: Ray, rayT: Interval): HitRecord | null {
+    public override hit(ray: Ray, rayT: Interval): HitResult | null {
         // Heavily optimized code version of using the quadratic formula to solve sphere equation x^2+y^2+z^2=r^2 using vectors
-        const oc = this.center.minus(r.origin);
-        const a = r.direction.lengthSquared;
-        const h = r.direction.dot(oc);
+        const oc = this.center.minus(ray.origin);
+        const a = ray.direction.lengthSquared;
+        const h = ray.direction.dot(oc);
         const c = oc.lengthSquared - this.radius ** 2;
         const discriminant = h * h - a * c;
         if (discriminant < 0) return null;
@@ -63,10 +78,23 @@ export class Sphere extends Hittable {
         if (!root) return null;
 
         const t = root;
-        const p = r.at(t);
-        const outwardNormal = p.minus(this.center).div(this.radius);
+        const point = ray.at(t);
+        const outwardNormal = point.minus(this.center).div(this.radius);
 
-        return new HitRecord(this.mat, t, p, r, outwardNormal);
+        const theta = Math.acos(-point.y);
+        const phi = Math.atan2(-point.z, point.x) + Math.PI;
+        const u = phi / (2 * Math.PI);
+        const v = theta / Math.PI;
+
+        return new HitResult({
+            material: this.material,
+            t,
+            point,
+            ray,
+            outwardNormal,
+            u,
+            v,
+        });
     }
 }
 
@@ -80,12 +108,12 @@ export class HittableList extends Hittable {
         }
     }
 
-    public hit(r: Ray, rayT: Interval): HitRecord | null {
+    public hit(ray: Ray, rayT: Interval): HitResult | null {
         let rec = null;
         let closestSoFar = rayT.max;
 
         for (const object of this.objects) {
-            const tempRec = object.hit(r, new Interval(rayT.min, closestSoFar));
+            const tempRec = object.hit(ray, new Interval(rayT.min, closestSoFar));
             if (tempRec) {
                 rec = tempRec;
                 closestSoFar = tempRec.t;
@@ -132,13 +160,13 @@ export class BoundingVolumeHierarchy extends Hittable {
         }
     }
 
-    public hit(r: Ray, rayT: Interval): HitRecord | null {
-        if (!this.boundingBox.hit(r, rayT)) {
+    public hit(ray: Ray, rayT: Interval): HitResult | null {
+        if (!this.boundingBox.hit(ray, rayT)) {
             return null;
         }
 
-        const hitLeft = this.left.hit(r, rayT);
-        const hitRight = this.right.hit(r, new Interval(rayT.min, hitLeft ? hitLeft.t : rayT.max));
+        const hitLeft = this.left.hit(ray, rayT);
+        const hitRight = this.right.hit(ray, new Interval(rayT.min, hitLeft ? hitLeft.t : rayT.max));
 
         return hitRight || hitLeft;
     }

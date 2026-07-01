@@ -1,7 +1,8 @@
-import { Ray, type HitRecord } from './hittable';
+import { Ray, type HitResult } from './hittable';
+import { SolidColor, type Texture } from './texture';
 import { Interval, Vec3, type Color3 } from './util';
 
-export class MaterialRecord {
+export class MaterialResult {
     constructor(
         public attenuation: Color3,
         public scattered: Ray,
@@ -9,22 +10,24 @@ export class MaterialRecord {
 }
 
 export abstract class Material {
-    public abstract scatter(ray: Ray, rec: HitRecord): MaterialRecord | null;
+    public abstract scatter(ray: Ray, rec: HitResult): MaterialResult | null;
 }
 
 export class Lambert extends Material {
-    constructor(private albedo: Color3) {
+    constructor(private texture: Texture) {
         super();
     }
 
-    public override scatter(ray: Ray, rec: HitRecord): MaterialRecord | null {
+    public override scatter(ray: Ray, rec: HitResult): MaterialResult | null {
         let scatterDirection = rec.normal.plus(Vec3.randomUnitVector());
 
         if (scatterDirection.nearZero) {
             scatterDirection = rec.normal;
         }
 
-        return new MaterialRecord(this.albedo, new Ray(rec.p, scatterDirection));
+        const scattered = new Ray(rec.point, scatterDirection);
+        const attenuation = this.texture.value(rec.u, rec.v, rec.point);
+        return new MaterialResult(attenuation, scattered);
     }
 }
 
@@ -36,13 +39,13 @@ export class Metal extends Material {
         super();
     }
 
-    public override scatter(ray: Ray, rec: HitRecord): MaterialRecord | null {
+    public override scatter(ray: Ray, rec: HitResult): MaterialResult | null {
         const reflected = ray.direction.reflect(rec.normal);
         const fuzzed = reflected.unitVector.plus(Vec3.randomUnitVector().times(this.fuzz));
-        const scattered = new Ray(rec.p, fuzzed);
+        const scattered = new Ray(rec.point, fuzzed);
 
         if (scattered.direction.dot(rec.normal) > 0) {
-            return new MaterialRecord(this.albedo, scattered);
+            return new MaterialResult(this.albedo, scattered);
         }
 
         return null;
@@ -54,7 +57,7 @@ export class Dielectric extends Material {
         super();
     }
 
-    public scatter(ray: Ray, rec: HitRecord): MaterialRecord | null {
+    public scatter(ray: Ray, rec: HitResult): MaterialResult | null {
         const refractionIndex = rec.frontFace ? 1.0 / this.refractionIndex : this.refractionIndex;
 
         const unitDirection = ray.direction.unitVector;
@@ -68,7 +71,7 @@ export class Dielectric extends Material {
                 ? unitDirection.reflect(rec.normal)
                 : unitDirection.refract(rec.normal, refractionIndex);
 
-        return new MaterialRecord(Vec3.one, new Ray(rec.p, direction));
+        return new MaterialResult(Vec3.one, new Ray(rec.point, direction));
     }
 
     private reflectance(cosine: number) {
