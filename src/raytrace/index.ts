@@ -19,19 +19,43 @@ const world = () => {
     ]);
 };
 
+const world2 = () => {
+    const R = Math.cos(Math.PI / 4);
+
+    const materialLeft = new Lambert(new Vec3(0, 0, 1));
+    const materialRight = new Lambert(new Vec3(1, 0, 0));
+
+    return new HittableList([
+        new Sphere(new Vec3(-R, 0, -1), R, materialLeft),
+        new Sphere(new Vec3(R, 0, -1), R, materialRight),
+    ]);
+};
+
 const main = () => {
     // Html5 Canvas our beloved
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
     // Setup camera
-    const camera = new Camera(400, window.innerWidth / window.innerHeight);
-    canvas.width = camera.imageWidth;
-    canvas.height = camera.imageHeight;
+    const camera = new Camera({
+        imageWidth: 400,
+        aspectRatio: window.innerWidth / window.innerHeight,
+        samplesPerPixel: 100,
+        maxDepth: 50,
+
+        verticalFov: 20,
+        lookFrom: new Vec3(-2, 2, 1),
+        lookAt: new Vec3(0, 0, -1),
+        vUp: new Vec3(0, 1, 0),
+    });
 
     // Use raw image to batch upload to the canvas
+    canvas.width = camera.imageWidth;
+    canvas.height = camera.imageHeight;
     const imageData = ctx.createImageData(camera.imageWidth, camera.imageHeight);
+
     camera.render(world(), imageData.data);
+
     ctx.putImageData(imageData, 0, 0);
     document.querySelector('body')!.style.backgroundImage = `url(${canvas.toDataURL()})`;
 
