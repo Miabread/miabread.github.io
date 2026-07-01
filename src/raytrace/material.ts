@@ -1,6 +1,6 @@
 import { Ray, type HitResult } from './hittable';
-import { SolidColor, type Texture } from './texture';
-import { Interval, Vec3, type Color3 } from './util';
+import { type Texture } from './texture';
+import { Interval, Vec3, type Color3, type Point3 } from './util';
 
 export class MaterialResult {
     constructor(
@@ -11,6 +11,10 @@ export class MaterialResult {
 
 export abstract class Material {
     public abstract scatter(ray: Ray, hit: HitResult): MaterialResult | null;
+
+    public emitted(u: number, v: number, point: Point3) {
+        return Vec3.zero;
+    }
 }
 
 export class Lambert extends Material {
@@ -77,5 +81,19 @@ export class Dielectric extends Material {
     private reflectance(cosine: number) {
         const r0 = ((1 - this.refractionIndex) / (1 + this.refractionIndex)) ** 2;
         return r0 + (1 - r0) * (1 - cosine) ** 5;
+    }
+}
+
+export class DiffuseLight extends Material {
+    constructor(private texture: Texture) {
+        super();
+    }
+
+    public scatter(ray: Ray, hit: HitResult): MaterialResult | null {
+        return null;
+    }
+
+    public emitted(u: number, v: number, point: Point3): Vec3 {
+        return this.texture.value(u, v, point);
     }
 }

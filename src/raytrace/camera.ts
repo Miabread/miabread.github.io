@@ -1,5 +1,5 @@
 import { Ray, type Hittable } from './hittable';
-import { degreesToRadians, Interval, Vec3, type Point3 } from './util';
+import { degreesToRadians, Interval, Vec3, type Color3, type Point3 } from './util';
 
 export interface CameraRenderOptions {
     imageWidth: number;
@@ -16,6 +16,8 @@ export interface CameraSceneOptions {
 
     defocusAngle: number;
     focusDistance: number;
+
+    background?: Color3;
 }
 
 export class Camera {
@@ -132,17 +134,27 @@ export class Camera {
         }
 
         const hit = world.hit(ray, new Interval(0.001, Infinity));
-        if (hit) {
-            const materialResult = hit.material.scatter(ray, hit);
-            if (materialResult) {
-                const color = this.rayColor(materialResult.scattered, depth - 1, world);
-                return materialResult.attenuation.times(color);
+
+        if (!hit) {
+            if (this.sceneOptions.background) {
+                return this.sceneOptions.background;
             }
-            return Vec3.zero;
+
+            const unitDirection = ray.direction.unitVector;
+            const a = 0.5 * (unitDirection.y + 1.0);
+            return new Vec3(1.0, 1.0, 1.0).times(1.0 - a).plus(new Vec3(0.5, 0.7, 1.0).times(a));
         }
 
-        const unitDirection = ray.direction.unitVector;
-        const a = 0.5 * (unitDirection.y + 1.0);
-        return new Vec3(1.0, 1.0, 1.0).times(1.0 - a).plus(new Vec3(0.5, 0.7, 1.0).times(a));
+        const emissionColor = hit.material.emitted(hit.u, hit.v, hit.point);
+        const materialResult = hit.material.scatter(ray, hit);
+        if (!materialResult) {
+            return emissionColor;
+        }
+
+        const scatterColor = materialResult.attenuation.times(
+            this.rayColor(materialResult.scattered, depth - 1, world),
+        );
+
+        return emissionColor.plus(scatterColor);
     }
 }

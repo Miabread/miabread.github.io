@@ -1,6 +1,6 @@
 import { type CameraSceneOptions } from './camera';
 import { BoundingVolumeHierarchy, Hittable, HittableList, Quad, Sphere } from './hittable';
-import { Dielectric, Lambert, Metal } from './material';
+import { Dielectric, DiffuseLight, Lambert, Metal } from './material';
 import { Perlin } from './noise';
 import { Checker, NoiseTexture, SolidColor, TurbulenceTexture } from './texture';
 import { Interval, Vec3 } from './util';
@@ -175,5 +175,55 @@ export const quads = () => {
         vUp: new Vec3(0, 1, 0),
         defocusAngle: 0,
         focusDistance: 10,
+    });
+};
+
+export const simpleLight = () => {
+    const world = new HittableList();
+
+    const perlin = new NoiseTexture(new Perlin(), 4);
+    world.add(new Sphere(new Vec3(0, -1000, 0), 1000, new Lambert(perlin)));
+    world.add(new Sphere(new Vec3(0, 2, 0), 2, new Lambert(perlin)));
+
+    const light = new DiffuseLight(new SolidColor(new Vec3(10, 10, 10)));
+    world.add(new Sphere(new Vec3(0, 7, 0), 2, light));
+    world.add(new Quad(new Vec3(3, 1, -2), new Vec3(2, 0, 0), new Vec3(0, 2, 0), light));
+
+    return new Scene(world.toBVH(), {
+        verticalFov: 20,
+        lookFrom: new Vec3(26, 3, 6),
+        lookAt: new Vec3(0, 2, 0),
+        vUp: new Vec3(0, 1, 0),
+        defocusAngle: 0,
+        focusDistance: 10,
+        background: new Vec3(0, 0, 0),
+    });
+};
+
+export const cornellBox = () => {
+    const red = new Lambert(new SolidColor(new Vec3(0.65, 0.05, 0.05)));
+    const white = new Lambert(new SolidColor(new Vec3(0.73, 0.73, 0.73)));
+    const green = new Lambert(new SolidColor(new Vec3(0.12, 0.45, 0.15)));
+    const light = new DiffuseLight(new SolidColor(new Vec3(15, 15, 15)));
+
+    const quads = [
+        [new Vec3(555, 0, 0), new Vec3(0, 555, 0), new Vec3(0, 0, 555), green],
+        [new Vec3(0, 0, 0), new Vec3(0, 555, 0), new Vec3(0, 0, 555), red],
+        [new Vec3(343, 554, 332), new Vec3(-130, 0, 0), new Vec3(0, 0, -105), light],
+        [new Vec3(0, 0, 0), new Vec3(555, 0, 0), new Vec3(0, 0, 555), white],
+        [new Vec3(555, 555, 555), new Vec3(-555, 0, 0), new Vec3(0, 0, -555), white],
+        [new Vec3(0, 0, 555), new Vec3(555, 0, 0), new Vec3(0, 555, 0), white],
+    ] as const;
+
+    const world = new HittableList(quads.map(([Q, u, v, material]) => new Quad(Q, u, v, material)));
+
+    return new Scene(world.toBVH(), {
+        verticalFov: 40,
+        lookFrom: new Vec3(278, 278, -800),
+        lookAt: new Vec3(278, 278, 0),
+        vUp: new Vec3(0, 1, 0),
+        defocusAngle: 0,
+        focusDistance: 10,
+        background: new Vec3(0, 0, 0),
     });
 };

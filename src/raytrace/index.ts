@@ -6,14 +6,14 @@ const main = async () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    const scene = scenes.quads();
+    const scene = scenes.cornellBox();
 
     // Setup camera
     const camera = new Camera(
         {
-            imageWidth: 400,
+            imageWidth: 600,
             aspectRatio: window.innerWidth / window.innerHeight,
-            samplesPerPixel: 25,
+            samplesPerPixel: 200,
             maxDepth: 50,
         },
         scene.cameraOptions,
