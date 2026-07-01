@@ -1,5 +1,5 @@
 import { type CameraSceneOptions } from './camera';
-import { BoundingVolumeHierarchy, Hittable, HittableList, Sphere } from './hittable';
+import { BoundingVolumeHierarchy, Hittable, HittableList, Quad, Sphere } from './hittable';
 import { Dielectric, Lambert, Metal } from './material';
 import { Perlin } from './noise';
 import { Checker, NoiseTexture, SolidColor, TurbulenceTexture } from './texture';
@@ -150,6 +150,29 @@ export const perlinSpheres = () => {
         lookAt: new Vec3(0, 0, 0),
         vUp: new Vec3(0, 1, 0),
 
+        defocusAngle: 0,
+        focusDistance: 10,
+    });
+};
+
+export const quads = () => {
+    const data = [
+        [new Vec3(-3, -2, 5), new Vec3(0, 0, -4), new Vec3(0, 4, 0), new Vec3(1.0, 0.2, 0.2)],
+        [new Vec3(-2, -2, 0), new Vec3(4, 0, 0), new Vec3(0, 4, 0), new Vec3(0.2, 1.0, 0.2)],
+        [new Vec3(3, -2, 1), new Vec3(0, 0, 4), new Vec3(0, 4, 0), new Vec3(0.2, 0.2, 1.0)],
+        [new Vec3(-2, 3, 1), new Vec3(4, 0, 0), new Vec3(0, 0, 4), new Vec3(1.0, 0.5, 0.0)],
+        [new Vec3(-2, -3, 5), new Vec3(4, 0, 0), new Vec3(0, 0, -4), new Vec3(0.2, 0.8, 0.8)],
+    ];
+
+    const world = new BoundingVolumeHierarchy(
+        data.map(([Q, u, v, albedo]) => new Quad(Q, u, v, new Lambert(new SolidColor(albedo)))),
+    );
+
+    return new Scene(world, {
+        verticalFov: 80,
+        lookFrom: new Vec3(0, 0, 9),
+        lookAt: new Vec3(0, 0, 0),
+        vUp: new Vec3(0, 1, 0),
         defocusAngle: 0,
         focusDistance: 10,
     });

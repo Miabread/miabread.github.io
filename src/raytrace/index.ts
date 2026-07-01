@@ -6,14 +6,14 @@ const main = async () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    const scene = scenes.perlinSpheres();
+    const scene = scenes.quads();
 
     // Setup camera
     const camera = new Camera(
         {
             imageWidth: 400,
             aspectRatio: window.innerWidth / window.innerHeight,
-            samplesPerPixel: 50,
+            samplesPerPixel: 25,
             maxDepth: 50,
         },
         scene.cameraOptions,

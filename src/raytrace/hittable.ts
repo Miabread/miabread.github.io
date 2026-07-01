@@ -171,3 +171,56 @@ export class BoundingVolumeHierarchy extends Hittable {
         return hitRight || hitLeft;
     }
 }
+
+export class Quad extends Hittable {
+    private normal: Vec3;
+    private D: number;
+    private w: Vec3;
+
+    constructor(
+        private Q: Point3,
+        private u: Vec3,
+        private v: Vec3,
+        private material: Material,
+    ) {
+        super();
+        const n = u.cross(v);
+        this.normal = n.unitVector;
+        this.D = this.normal.dot(Q);
+        this.w = n.div(n.dot(n));
+
+        this.boundingBox = BoundingBox.corners(Q, Q.plus(u).plus(v)).join(BoundingBox.corners(Q.plus(u), Q.plus(v)));
+    }
+
+    public hit(ray: Ray, rayT: Interval): HitResult | null {
+        const denominator = this.normal.dot(ray.direction);
+
+        if (Math.abs(denominator) < 1e-8) {
+            return null;
+        }
+
+        const t = (this.D - this.normal.dot(ray.origin)) / denominator;
+        if (!rayT.contains(t)) {
+            return null;
+        }
+
+        const point = ray.at(t);
+        const planarHitPoint = point.minus(this.Q);
+        const u = this.w.dot(planarHitPoint.cross(this.v));
+        const v = this.w.dot(this.u.cross(planarHitPoint));
+
+        if (!Interval.unit.contains(u) || !Interval.unit.contains(v)) {
+            return null;
+        }
+
+        return new HitResult({
+            material: this.material,
+            t,
+            point,
+            ray,
+            outwardNormal: this.normal,
+            u,
+            v,
+        });
+    }
+}

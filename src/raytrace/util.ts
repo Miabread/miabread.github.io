@@ -192,7 +192,12 @@ export class BoundingBox {
         public x: Interval,
         public y: Interval,
         public z: Interval,
-    ) {}
+    ) {
+        const delta = 0.0001;
+        if (this.x.size < delta) this.x = this.x.expand(delta);
+        if (this.y.size < delta) this.y = this.y.expand(delta);
+        if (this.z.size < delta) this.z = this.z.expand(delta);
+    }
 
     public static corners(a: Point3, b: Point3) {
         return new BoundingBox(
