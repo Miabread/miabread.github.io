@@ -13,7 +13,7 @@ const main = async () => {
         {
             imageWidth: 400,
             aspectRatio: window.innerWidth / window.innerHeight,
-            samplesPerPixel: 10,
+            samplesPerPixel: 50,
             maxDepth: 50,
         },
         scene.cameraOptions,

@@ -2,7 +2,7 @@ import { type CameraSceneOptions } from './camera';
 import { BoundingVolumeHierarchy, Hittable, HittableList, Sphere } from './hittable';
 import { Dielectric, Lambert, Metal } from './material';
 import { Perlin } from './noise';
-import { Checker, NoiseTexture, SolidColor } from './texture';
+import { Checker, NoiseTexture, SolidColor, TurbulenceTexture } from './texture';
 import { Interval, Vec3 } from './util';
 
 class Scene {
@@ -140,7 +140,7 @@ export const checkeredSpheres = () => {
 export const perlinSpheres = () => {
     const world = new HittableList();
 
-    const perlin = new NoiseTexture(new Perlin());
+    const perlin = new TurbulenceTexture(new Perlin(), 4);
     world.add(new Sphere(new Vec3(0, -1000, 0), 1000, new Lambert(perlin)));
     world.add(new Sphere(new Vec3(0, 2, 0), 2, new Lambert(perlin)));
 

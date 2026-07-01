@@ -36,11 +36,28 @@ export class Checker extends Texture {
 }
 
 export class NoiseTexture extends Texture {
-    constructor(private noise: Noise) {
+    constructor(
+        private noise: Noise,
+        private scale: number,
+    ) {
         super();
     }
 
     public value(u: number, v: number, point: Point3): Color3 {
-        return Vec3.one.times(this.noise.noise(point));
+        const noise = this.noise.noise(point.times(this.scale));
+        return Vec3.one.times(0.5 * (1 + noise));
+    }
+}
+
+export class TurbulenceTexture extends Texture {
+    constructor(
+        private noise: Noise,
+        private scale: number,
+    ) {
+        super();
+    }
+
+    public value(u: number, v: number, point: Point3): Color3 {
+        return Vec3.of(0.5).times(1 + Math.sin(this.scale * point.z + 10 * this.noise.turbulence(point, 7)));
     }
 }
