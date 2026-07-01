@@ -4,8 +4,8 @@ import { Interval, Vec3, type Point3 } from './util';
 export class Camera {
     public imageWidth: number;
     public imageHeight: number;
-    public samplesPerPixel = 10;
-    public maxDepth = 10;
+    public samplesPerPixel = 100;
+    public maxDepth = 50;
 
     private center: Point3;
     private upperLeftPixelLocation: Point3;

@@ -2,6 +2,9 @@ export class Vec3 {
     static get zero() {
         return new Vec3(0, 0, 0);
     }
+    static get one() {
+        return new Vec3(1, 1, 1);
+    }
 
     constructor(
         public x: number,
@@ -92,6 +95,12 @@ export class Vec3 {
     }
     public reflect(input: Vec3): Vec3 {
         return this.minus(input.times(2 * this.dot(input)));
+    }
+    public refract(input: Vec3, etaIOverEtaT: number) {
+        const cosTheta = Math.min(this.neg.dot(input), 1.0);
+        const resultPerpendicular = this.plus(input.times(cosTheta)).times(etaIOverEtaT);
+        const resultParallel = input.times(-Math.sqrt(Math.abs(1.0 - resultPerpendicular.lengthSquared)));
+        return resultPerpendicular.plus(resultParallel);
     }
 }
 
