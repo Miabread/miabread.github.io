@@ -1,11 +1,16 @@
+import type { Ray } from './hittable';
+
 export const degreesToRadians = (x: number) => x * (Math.PI / 180);
 
 export class Vec3 {
     static get zero() {
-        return new Vec3(0, 0, 0);
+        return Vec3.of(0);
     }
     static get one() {
-        return new Vec3(1, 1, 1);
+        return Vec3.of(1);
+    }
+    public static of(n: number) {
+        return new Vec3(n, n, n);
     }
 
     constructor(
@@ -47,6 +52,11 @@ export class Vec3 {
     }
     get b() {
         return this.z;
+    }
+    public index(n: number) {
+        if (n === 1) return this.y;
+        if (n === 2) return this.z;
+        return this.x;
     }
 
     get lengthSquared() {
@@ -138,6 +148,11 @@ export class Interval {
         return this.max - this.min;
     }
 
+    public expand(delta: number) {
+        const padding = delta / 2;
+        return new Interval(this.min - padding, this.max + padding);
+    }
+
     public contains(x: number) {
         return this.min <= x && x <= this.max;
     }
@@ -154,5 +169,75 @@ export class Interval {
 
     public random() {
         return Math.random() * this.size + this.min;
+    }
+    public randomInteger() {
+        return Math.trunc(new Interval(this.min, this.max + 1).random());
+    }
+
+    public join(other: Interval) {
+        return new Interval(this.min <= other.min ? this.min : other.min, this.max >= other.max ? this.max : other.max);
+    }
+}
+
+export class BoundingBox {
+    public static get empty() {
+        return new BoundingBox(Interval.empty, Interval.empty, Interval.empty);
+    }
+
+    constructor(
+        public x: Interval,
+        public y: Interval,
+        public z: Interval,
+    ) {}
+
+    public static corners(a: Point3, b: Point3) {
+        return new BoundingBox(
+            a.x <= b.x ? new Interval(a.x, b.x) : new Interval(b.x, a.x),
+            a.y <= b.y ? new Interval(a.y, b.y) : new Interval(b.y, a.y),
+            a.z <= b.z ? new Interval(a.z, b.z) : new Interval(b.z, a.z),
+        );
+    }
+
+    public join(other: BoundingBox) {
+        return new BoundingBox(this.x.join(other.x), this.y.join(other.y), this.z.join(other.z));
+    }
+
+    public index(n: number) {
+        if (n === 1) return this.y;
+        if (n === 2) return this.z;
+        return this.x;
+    }
+
+    public longestAxis() {
+        if (this.x.size > this.y.size) {
+            return this.x.size > this.z.size ? 0 : 2;
+        }
+        return this.y.size > this.z.size ? 1 : 2;
+    }
+
+    public hit(ray: Ray, rayT: Interval) {
+        let tMin = rayT.min;
+        let tMax = rayT.max;
+
+        for (let i = 0; i < 3; i++) {
+            const axis = this.index(i);
+            const inverted = 1.0 / ray.direction.index(i);
+
+            let t0 = (axis.min - ray.origin.index(i)) * inverted;
+            let t1 = (axis.max - ray.origin.index(i)) * inverted;
+
+            if (inverted < 0) {
+                [t0, t1] = [t1, t0];
+            }
+
+            if (t0 > tMin) tMin = t0;
+            if (t1 < tMax) tMax = t1;
+
+            if (tMax <= tMin) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

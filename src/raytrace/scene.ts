@@ -1,11 +1,11 @@
 import { type CameraSceneOptions } from './camera';
-import { HittableList, Sphere } from './hittable';
+import { BoundingVolumeHierarchy, Hittable, HittableList, Sphere } from './hittable';
 import { Dielectric, Lambert, Metal } from './material';
 import { Interval, Vec3 } from './util';
 
 class Scene {
     constructor(
-        public world: HittableList,
+        public world: Hittable,
         public cameraOptions: CameraSceneOptions,
     ) {}
 }
@@ -100,7 +100,7 @@ export const scene3 = () => {
     const material3 = new Metal(new Vec3(0.7, 0.6, 0.5), 0.0);
     world.add(new Sphere(new Vec3(4, 1, 0), 1.0, material3));
 
-    return new Scene(world, {
+    return new Scene(world.toBVH(), {
         verticalFov: 20,
         lookFrom: new Vec3(13, 2, 3),
         lookAt: new Vec3(0, 0, 0),

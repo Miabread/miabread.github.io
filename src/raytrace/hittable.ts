@@ -1,5 +1,5 @@
 import type { Material } from './material';
-import { type Point3, type Vec3, Interval } from './util';
+import { type Point3, BoundingBox, Interval, Vec3 } from './util';
 
 export class Ray {
     constructor(
@@ -30,6 +30,8 @@ export class HitRecord {
 }
 
 export abstract class Hittable {
+    public boundingBox = BoundingBox.empty;
+
     public abstract hit(r: Ray, rayT: Interval): HitRecord | null;
 }
 
@@ -40,6 +42,8 @@ export class Sphere extends Hittable {
         public mat: Material,
     ) {
         super();
+        const radiusVec = Vec3.of(this.radius);
+        this.boundingBox = BoundingBox.corners(this.center.minus(radiusVec), this.center.plus(radiusVec));
     }
 
     public override hit(r: Ray, rayT: Interval): HitRecord | null {
@@ -67,8 +71,13 @@ export class Sphere extends Hittable {
 }
 
 export class HittableList extends Hittable {
-    constructor(public objects: Hittable[]) {
+    private objects: Hittable[] = [];
+
+    constructor(objects: Hittable[] = []) {
         super();
+        for (const object of objects) {
+            this.add(object);
+        }
     }
 
     public hit(r: Ray, rayT: Interval): HitRecord | null {
@@ -86,8 +95,51 @@ export class HittableList extends Hittable {
         return rec;
     }
 
-    public add(value: Hittable): HittableList {
-        this.objects.push(value);
+    public add(object: Hittable): HittableList {
+        this.objects.push(object);
+        this.boundingBox = this.boundingBox.join(object.boundingBox);
         return this;
+    }
+
+    public toBVH() {
+        return new BoundingVolumeHierarchy(this.objects);
+    }
+}
+
+export class BoundingVolumeHierarchy extends Hittable {
+    private left: Hittable;
+    private right: Hittable;
+
+    constructor(objects: Hittable[]) {
+        super();
+
+        for (const object of objects) {
+            this.boundingBox = this.boundingBox.join(object.boundingBox);
+        }
+
+        const axis = this.boundingBox.longestAxis();
+
+        if (objects.length === 1) {
+            this.left = this.right = objects[0];
+        } else if (objects.length == 2) {
+            this.left = objects[0];
+            this.right = objects[1];
+        } else {
+            objects.sort((a, b) => a.boundingBox.index(axis).min - b.boundingBox.index(axis).min);
+            const mid = Math.floor(objects.length / 2);
+            this.left = new BoundingVolumeHierarchy(objects.slice(0, mid));
+            this.right = new BoundingVolumeHierarchy(objects.slice(mid));
+        }
+    }
+
+    public hit(r: Ray, rayT: Interval): HitRecord | null {
+        if (!this.boundingBox.hit(r, rayT)) {
+            return null;
+        }
+
+        const hitLeft = this.left.hit(r, rayT);
+        const hitRight = this.right.hit(r, new Interval(rayT.min, hitLeft ? hitLeft.t : rayT.max));
+
+        return hitRight || hitLeft;
     }
 }

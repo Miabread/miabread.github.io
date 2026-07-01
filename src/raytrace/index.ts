@@ -11,7 +11,7 @@ const main = async () => {
     // Setup camera
     const camera = new Camera(
         {
-            imageWidth: 64,
+            imageWidth: 400,
             aspectRatio: window.innerWidth / window.innerHeight,
             samplesPerPixel: 100,
             maxDepth: 50,
