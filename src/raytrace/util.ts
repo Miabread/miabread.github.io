@@ -1,3 +1,5 @@
+export const degreesToRadians = (x: number) => x * (Math.PI / 180);
+
 export class Vec3 {
     static get zero() {
         return new Vec3(0, 0, 0);
@@ -26,6 +28,15 @@ export class Vec3 {
     static randomOnHemisphere(normal: Vec3): Vec3 {
         const onUnitSphere = this.randomUnitVector();
         return onUnitSphere.dot(normal) > 0.0 ? onUnitSphere : onUnitSphere.neg;
+    }
+    static randomInUnitDisk() {
+        const interval = new Interval(-1, 1);
+        while (true) {
+            const p = new Vec3(interval.random(), interval.random(), 0);
+            if (p.lengthSquared < 1) {
+                return p;
+            }
+        }
     }
 
     get r() {

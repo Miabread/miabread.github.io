@@ -1,16 +1,21 @@
 import { Ray, type Hittable } from './hittable';
-import { Interval, Vec3, type Point3 } from './util';
+import { degreesToRadians, Interval, Vec3, type Point3 } from './util';
 
-interface CameraOptions {
+export interface CameraRenderOptions {
     imageWidth: number;
     aspectRatio: number;
     samplesPerPixel: number;
     maxDepth: number;
+}
 
+export interface CameraSceneOptions {
     verticalFov: number;
     lookFrom: Vec3;
     lookAt: Vec3;
     vUp: Vec3;
+
+    defocusAngle: number;
+    focusDistance: number;
 }
 
 export class Camera {
@@ -25,21 +30,24 @@ export class Camera {
     private u: Vec3;
     private v: Vec3;
     private w: Vec3;
+    private defocusDiskU: Vec3;
+    private defocusDiskV: Vec3;
 
-    constructor(private options: CameraOptions) {
-        this.imageWidth = options.imageWidth;
-        this.imageHeight = Math.max(1, Math.trunc(this.imageWidth / options.aspectRatio));
+    constructor(
+        private renderOptions: CameraRenderOptions,
+        private sceneOptions: CameraSceneOptions,
+    ) {
+        this.imageWidth = renderOptions.imageWidth;
+        this.imageHeight = Math.max(1, Math.trunc(this.imageWidth / renderOptions.aspectRatio));
 
-        this.center = options.lookFrom;
+        this.center = sceneOptions.lookFrom;
 
-        const focalLength = options.lookFrom.minus(options.lookAt).length;
-        const theta = options.verticalFov * (Math.PI / 180);
-        const h = Math.tan(theta / 2);
-        const viewportHeight = 2.0 * h * focalLength;
+        const viewportHeight =
+            2.0 * sceneOptions.focusDistance * Math.tan(degreesToRadians(sceneOptions.verticalFov) / 2);
         const viewportWidth = viewportHeight * (this.imageWidth / this.imageHeight);
 
-        this.w = options.lookFrom.minus(options.lookAt).unitVector;
-        this.u = options.vUp.cross(this.w).unitVector;
+        this.w = sceneOptions.lookFrom.minus(sceneOptions.lookAt).unitVector;
+        this.u = sceneOptions.vUp.cross(this.w).unitVector;
         this.v = this.w.cross(this.u);
 
         const viewportU = this.u.times(viewportWidth);
@@ -49,13 +57,17 @@ export class Camera {
         this.pixelDeltaV = viewportV.div(this.imageHeight);
 
         const viewportUpperLeft = this.center
-            .minus(this.w.times(focalLength))
+            .minus(this.w.times(sceneOptions.focusDistance))
             .minus(viewportU.div(2))
             .minus(viewportV.div(2));
 
         this.upperLeftPixelLocation = viewportUpperLeft
             .plus(this.pixelDeltaU.times(0.5))
             .plus(this.pixelDeltaV.times(0.5));
+
+        const defocusRadius = sceneOptions.focusDistance * Math.tan(degreesToRadians(sceneOptions.defocusAngle / 2));
+        this.defocusDiskU = this.u.times(defocusRadius);
+        this.defocusDiskV = this.v.times(defocusRadius);
     }
 
     public render(world: Hittable, data: ImageDataArray) {
@@ -63,14 +75,14 @@ export class Camera {
             for (let i = 0; i < this.imageWidth; i++) {
                 let pixelColor = Vec3.zero;
 
-                for (let sample = 0; sample < this.options.samplesPerPixel; sample++) {
+                for (let sample = 0; sample < this.renderOptions.samplesPerPixel; sample++) {
                     const r = this.getRay(i, j);
-                    pixelColor = pixelColor.plus(this.rayColor(r, this.options.maxDepth, world));
+                    pixelColor = pixelColor.plus(this.rayColor(r, this.renderOptions.maxDepth, world));
                 }
 
                 const intensity = new Interval(0.0, 0.999);
                 const finalPixelColor = pixelColor
-                    .times(1 / this.options.samplesPerPixel)
+                    .times(1 / this.renderOptions.samplesPerPixel)
                     .map((n) => Math.floor(256 * intensity.clamp(Math.sqrt(n))));
 
                 const index = (j * this.imageWidth + i) * 4;
@@ -88,12 +100,20 @@ export class Camera {
             .plus(this.pixelDeltaU.times(i + offset.x))
             .plus(this.pixelDeltaV.times(j + offset.y));
 
-        return new Ray(this.center, pixelSample.minus(this.center));
+        const origin = this.sceneOptions.defocusAngle <= 0 ? this.center : this.defocusDiskSample();
+        const direction = pixelSample.minus(origin);
+
+        return new Ray(origin, direction);
     }
 
     private sampleSquare() {
         const interval = new Interval(-0.5, 0.5);
         return new Vec3(interval.random(), interval.random(), 0);
+    }
+
+    private defocusDiskSample() {
+        const p = Vec3.randomInUnitDisk();
+        return this.center.plus(this.defocusDiskU.times(p.x)).plus(this.defocusDiskV.times(p.y));
     }
 
     private rayColor(r: Ray, depth: number, world: Hittable): Vec3 {
