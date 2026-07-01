@@ -1,17 +1,17 @@
 import { Camera } from './camera';
-import { scene1, scene2 } from './scene';
+import { scene1, scene2, scene3 } from './scene';
 
-const main = () => {
+const main = async () => {
     // Html5 Canvas our beloved
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    const scene = scene2();
+    const scene = scene3();
 
     // Setup camera
     const camera = new Camera(
         {
-            imageWidth: 400,
+            imageWidth: 64,
             aspectRatio: window.innerWidth / window.innerHeight,
             samplesPerPixel: 100,
             maxDepth: 50,
@@ -24,7 +24,7 @@ const main = () => {
     canvas.height = camera.imageHeight;
     const imageData = ctx.createImageData(camera.imageWidth, camera.imageHeight);
 
-    camera.render(scene.world, imageData.data);
+    await camera.render(scene.world, imageData.data);
 
     ctx.putImageData(imageData, 0, 0);
     document.querySelector('body')!.style.backgroundImage = `url(${canvas.toDataURL()})`;
@@ -40,4 +40,4 @@ const main = () => {
     });
 };
 
-main();
+await main();

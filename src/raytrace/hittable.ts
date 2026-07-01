@@ -85,4 +85,9 @@ export class HittableList extends Hittable {
 
         return rec;
     }
+
+    public add(value: Hittable): HittableList {
+        this.objects.push(value);
+        return this;
+    }
 }

@@ -70,11 +70,15 @@ export class Camera {
         this.defocusDiskV = this.v.times(defocusRadius);
     }
 
-    public render(world: Hittable, data: ImageDataArray) {
+    public async render(world: Hittable, data: ImageDataArray) {
+        const BATCH_THRESHOLD_MS = 50;
+        let lastYieldTime = performance.now();
+
         for (let j = 0; j < this.imageHeight; j++) {
+            console.log(`Scan lines remaining: ${this.imageHeight - j}`);
+
             for (let i = 0; i < this.imageWidth; i++) {
                 let pixelColor = Vec3.zero;
-
                 for (let sample = 0; sample < this.renderOptions.samplesPerPixel; sample++) {
                     const r = this.getRay(i, j);
                     pixelColor = pixelColor.plus(this.rayColor(r, this.renderOptions.maxDepth, world));
@@ -90,6 +94,12 @@ export class Camera {
                 data[index + 1] = finalPixelColor.g;
                 data[index + 2] = finalPixelColor.b;
                 data[index + 3] = 255;
+
+                const now = performance.now();
+                if (now - lastYieldTime > BATCH_THRESHOLD_MS) {
+                    await scheduler.yield();
+                    lastYieldTime = now;
+                }
             }
         }
     }

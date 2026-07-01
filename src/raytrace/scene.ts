@@ -1,7 +1,7 @@
 import { type CameraSceneOptions } from './camera';
 import { HittableList, Sphere } from './hittable';
 import { Dielectric, Lambert, Metal } from './material';
-import { Vec3 } from './util';
+import { Interval, Vec3 } from './util';
 
 class Scene {
     constructor(
@@ -58,4 +58,55 @@ export const scene2 = () => {
             focusDistance: 10,
         },
     );
+};
+
+const randomMaterial = () => {
+    const chooseMaterial = Interval.unit.random();
+
+    if (chooseMaterial < 0.8) {
+        const albedo = Vec3.random(Interval.unit).times(Vec3.random(Interval.unit));
+        return new Lambert(albedo);
+    } else if (chooseMaterial < 0.95) {
+        const albedo = Vec3.random(new Interval(0, 0.5));
+        const fuzz = new Interval(0, 0.5).random();
+        return new Metal(albedo, fuzz);
+    } else {
+        return new Dielectric(1.5);
+    }
+};
+
+export const scene3 = () => {
+    const world = new HittableList([]);
+
+    const groundMaterial = new Lambert(new Vec3(0.5, 0.5, 0.5));
+    world.add(new Sphere(new Vec3(0, -1000, 0), 1000, groundMaterial));
+
+    for (let a = -11; a < 11; a++) {
+        for (let b = -11; b < 11; b++) {
+            const center = new Vec3(a + 0.9 * Interval.unit.random(), 0.2, b + 0.9 * Interval.unit.random());
+
+            if (center.minus(new Vec3(4, 0.2, 0)).length > 0.9) {
+                world.add(new Sphere(center, 0.2, randomMaterial()));
+            }
+        }
+    }
+
+    const material1 = new Dielectric(1.5);
+    world.add(new Sphere(new Vec3(0, 1, 0), 1.0, material1));
+
+    const material2 = new Lambert(new Vec3(0.4, 0.2, 0.1));
+    world.add(new Sphere(new Vec3(-4, 1, 0), 1.0, material2));
+
+    const material3 = new Metal(new Vec3(0.7, 0.6, 0.5), 0.0);
+    world.add(new Sphere(new Vec3(4, 1, 0), 1.0, material3));
+
+    return new Scene(world, {
+        verticalFov: 20,
+        lookFrom: new Vec3(13, 2, 3),
+        lookAt: new Vec3(0, 0, 0),
+        vUp: new Vec3(0, 1, 0),
+
+        defocusAngle: 0.6,
+        focusDistance: 10,
+    });
 };
