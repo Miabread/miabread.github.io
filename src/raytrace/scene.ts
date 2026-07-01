@@ -1,7 +1,8 @@
 import { type CameraSceneOptions } from './camera';
 import { BoundingVolumeHierarchy, Hittable, HittableList, Sphere } from './hittable';
 import { Dielectric, Lambert, Metal } from './material';
-import { Checker, SolidColor } from './texture';
+import { Perlin } from './noise';
+import { Checker, NoiseTexture, SolidColor } from './texture';
 import { Interval, Vec3 } from './util';
 
 class Scene {
@@ -77,7 +78,7 @@ const randomMaterial = () => {
 };
 
 export const manySpheres = () => {
-    const world = new HittableList([]);
+    const world = new HittableList();
 
     const groundMaterial = new Lambert(
         new Checker(
@@ -119,11 +120,29 @@ export const manySpheres = () => {
 };
 
 export const checkeredSpheres = () => {
-    const world = new HittableList([]);
+    const world = new HittableList();
 
     const checker = new Checker(0.32, new SolidColor(new Vec3(0.2, 0.3, 0.1)), new SolidColor(new Vec3(0.9, 0.9, 0.9)));
     world.add(new Sphere(new Vec3(0, -10, 0), 10, new Lambert(checker)));
     world.add(new Sphere(new Vec3(0, 10, 0), 10, new Lambert(checker)));
+
+    return new Scene(world.toBVH(), {
+        verticalFov: 20,
+        lookFrom: new Vec3(13, 2, 3),
+        lookAt: new Vec3(0, 0, 0),
+        vUp: new Vec3(0, 1, 0),
+
+        defocusAngle: 0,
+        focusDistance: 10,
+    });
+};
+
+export const perlinSpheres = () => {
+    const world = new HittableList();
+
+    const perlin = new NoiseTexture(new Perlin());
+    world.add(new Sphere(new Vec3(0, -1000, 0), 1000, new Lambert(perlin)));
+    world.add(new Sphere(new Vec3(0, 2, 0), 2, new Lambert(perlin)));
 
     return new Scene(world.toBVH(), {
         verticalFov: 20,

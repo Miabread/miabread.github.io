@@ -6,7 +6,7 @@ const main = async () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    const scene = scenes.checkeredSpheres();
+    const scene = scenes.perlinSpheres();
 
     // Setup camera
     const camera = new Camera(

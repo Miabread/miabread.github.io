@@ -109,18 +109,18 @@ export class HittableList extends Hittable {
     }
 
     public hit(ray: Ray, rayT: Interval): HitResult | null {
-        let rec = null;
+        let bestHit = null;
         let closestSoFar = rayT.max;
 
         for (const object of this.objects) {
-            const tempRec = object.hit(ray, new Interval(rayT.min, closestSoFar));
-            if (tempRec) {
-                rec = tempRec;
-                closestSoFar = tempRec.t;
+            const hit = object.hit(ray, new Interval(rayT.min, closestSoFar));
+            if (hit) {
+                bestHit = hit;
+                closestSoFar = hit.t;
             }
         }
 
-        return rec;
+        return bestHit;
     }
 
     public add(object: Hittable): HittableList {

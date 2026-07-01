@@ -10,7 +10,7 @@ export class MaterialResult {
 }
 
 export abstract class Material {
-    public abstract scatter(ray: Ray, rec: HitResult): MaterialResult | null;
+    public abstract scatter(ray: Ray, hit: HitResult): MaterialResult | null;
 }
 
 export class Lambert extends Material {
@@ -18,15 +18,15 @@ export class Lambert extends Material {
         super();
     }
 
-    public override scatter(ray: Ray, rec: HitResult): MaterialResult | null {
-        let scatterDirection = rec.normal.plus(Vec3.randomUnitVector());
+    public override scatter(ray: Ray, hit: HitResult): MaterialResult | null {
+        let scatterDirection = hit.normal.plus(Vec3.randomUnitVector());
 
         if (scatterDirection.nearZero) {
-            scatterDirection = rec.normal;
+            scatterDirection = hit.normal;
         }
 
-        const scattered = new Ray(rec.point, scatterDirection);
-        const attenuation = this.texture.value(rec.u, rec.v, rec.point);
+        const scattered = new Ray(hit.point, scatterDirection);
+        const attenuation = this.texture.value(hit.u, hit.v, hit.point);
         return new MaterialResult(attenuation, scattered);
     }
 }
@@ -39,12 +39,12 @@ export class Metal extends Material {
         super();
     }
 
-    public override scatter(ray: Ray, rec: HitResult): MaterialResult | null {
-        const reflected = ray.direction.reflect(rec.normal);
+    public override scatter(ray: Ray, hit: HitResult): MaterialResult | null {
+        const reflected = ray.direction.reflect(hit.normal);
         const fuzzed = reflected.unitVector.plus(Vec3.randomUnitVector().times(this.fuzz));
-        const scattered = new Ray(rec.point, fuzzed);
+        const scattered = new Ray(hit.point, fuzzed);
 
-        if (scattered.direction.dot(rec.normal) > 0) {
+        if (scattered.direction.dot(hit.normal) > 0) {
             return new MaterialResult(this.albedo, scattered);
         }
 
@@ -57,21 +57,21 @@ export class Dielectric extends Material {
         super();
     }
 
-    public scatter(ray: Ray, rec: HitResult): MaterialResult | null {
-        const refractionIndex = rec.frontFace ? 1.0 / this.refractionIndex : this.refractionIndex;
+    public scatter(ray: Ray, hit: HitResult): MaterialResult | null {
+        const refractionIndex = hit.frontFace ? 1.0 / this.refractionIndex : this.refractionIndex;
 
         const unitDirection = ray.direction.unitVector;
-        const cosTheta = Math.min(unitDirection.neg.dot(rec.normal), 1.0);
+        const cosTheta = Math.min(unitDirection.neg.dot(hit.normal), 1.0);
         const sinTheta = Math.sqrt(1.0 - cosTheta ** 2);
 
         const cannotRefract = refractionIndex * sinTheta > 1.0;
 
         const direction =
             cannotRefract || this.reflectance(cosTheta) > Interval.unit.random()
-                ? unitDirection.reflect(rec.normal)
-                : unitDirection.refract(rec.normal, refractionIndex);
+                ? unitDirection.reflect(hit.normal)
+                : unitDirection.refract(hit.normal, refractionIndex);
 
-        return new MaterialResult(Vec3.one, new Ray(rec.point, direction));
+        return new MaterialResult(Vec3.one, new Ray(hit.point, direction));
     }
 
     private reflectance(cosine: number) {

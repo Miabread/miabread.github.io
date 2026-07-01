@@ -24,9 +24,9 @@ export class Vec3 {
     }
     static randomUnitVector(): Vec3 {
         while (true) {
-            const p = Vec3.random(new Interval(-1, 1));
-            if (1e-600 < p.lengthSquared && p.lengthSquared <= 1) {
-                return p.div(Math.sqrt(p.lengthSquared));
+            const point = Vec3.random(new Interval(-1, 1));
+            if (1e-600 < point.lengthSquared && point.lengthSquared <= 1) {
+                return point.div(Math.sqrt(point.lengthSquared));
             }
         }
     }
@@ -37,9 +37,9 @@ export class Vec3 {
     static randomInUnitDisk() {
         const interval = new Interval(-1, 1);
         while (true) {
-            const p = new Vec3(interval.random(), interval.random(), 0);
-            if (p.lengthSquared < 1) {
-                return p;
+            const point = new Vec3(interval.random(), interval.random(), 0);
+            if (point.lengthSquared < 1) {
+                return point;
             }
         }
     }

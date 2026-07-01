@@ -80,8 +80,8 @@ export class Camera {
             for (let i = 0; i < this.imageWidth; i++) {
                 let pixelColor = Vec3.zero;
                 for (let sample = 0; sample < this.renderOptions.samplesPerPixel; sample++) {
-                    const r = this.getRay(i, j);
-                    pixelColor = pixelColor.plus(this.rayColor(r, this.renderOptions.maxDepth, world));
+                    const ray = this.getRay(i, j);
+                    pixelColor = pixelColor.plus(this.rayColor(ray, this.renderOptions.maxDepth, world));
                 }
 
                 const intensity = new Interval(0.0, 0.999);
@@ -122,25 +122,26 @@ export class Camera {
     }
 
     private defocusDiskSample() {
-        const p = Vec3.randomInUnitDisk();
-        return this.center.plus(this.defocusDiskU.times(p.x)).plus(this.defocusDiskV.times(p.y));
+        const point = Vec3.randomInUnitDisk();
+        return this.center.plus(this.defocusDiskU.times(point.x)).plus(this.defocusDiskV.times(point.y));
     }
 
-    private rayColor(r: Ray, depth: number, world: Hittable): Vec3 {
+    private rayColor(ray: Ray, depth: number, world: Hittable): Vec3 {
         if (depth <= 0) {
             return Vec3.zero;
         }
 
-        const hitRecord = world.hit(r, new Interval(0.001, Infinity));
-        if (hitRecord) {
-            const matRecord = hitRecord.material.scatter(r, hitRecord);
-            if (matRecord) {
-                return matRecord.attenuation.times(this.rayColor(matRecord.scattered, depth - 1, world));
+        const hit = world.hit(ray, new Interval(0.001, Infinity));
+        if (hit) {
+            const materialResult = hit.material.scatter(ray, hit);
+            if (materialResult) {
+                const color = this.rayColor(materialResult.scattered, depth - 1, world);
+                return materialResult.attenuation.times(color);
             }
             return Vec3.zero;
         }
 
-        const unitDirection = r.direction.unitVector;
+        const unitDirection = ray.direction.unitVector;
         const a = 0.5 * (unitDirection.y + 1.0);
         return new Vec3(1.0, 1.0, 1.0).times(1.0 - a).plus(new Vec3(0.5, 0.7, 1.0).times(a));
     }
