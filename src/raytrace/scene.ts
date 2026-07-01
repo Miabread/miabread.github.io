@@ -21,11 +21,11 @@ export const scene1 = () => {
 
     return new Scene(
         new HittableList([
-            new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, materialGround),
-            new Sphere(new Vec3(0.0, 0.0, -1.2), 0.5, materialCenter),
-            new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, materialLeft),
-            new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.4, materialBubble),
-            new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, materialRight),
+            Sphere.stationary(new Vec3(0.0, -100.5, -1.0), 100.0, materialGround),
+            Sphere.stationary(new Vec3(0.0, 0.0, -1.2), 0.5, materialCenter),
+            Sphere.stationary(new Vec3(-1.0, 0.0, -1.0), 0.5, materialLeft),
+            Sphere.stationary(new Vec3(-1.0, 0.0, -1.0), 0.4, materialBubble),
+            Sphere.stationary(new Vec3(1.0, 0.0, -1.0), 0.5, materialRight),
         ]),
         {
             verticalFov: 20,
@@ -47,8 +47,8 @@ export const scene2 = () => {
 
     return new Scene(
         new HittableList([
-            new Sphere(new Vec3(-R, 0, -1), R, materialLeft),
-            new Sphere(new Vec3(R, 0, -1), R, materialRight),
+            Sphere.stationary(new Vec3(-R, 0, -1), R, materialLeft),
+            Sphere.stationary(new Vec3(R, 0, -1), R, materialRight),
         ]),
         {
             verticalFov: 90,
@@ -77,7 +77,7 @@ const randomMaterial = () => {
     }
 };
 
-export const manySpheres = () => {
+export const movingSpheres = () => {
     const world = new HittableList();
 
     const groundMaterial = new Lambert(
@@ -87,26 +87,27 @@ export const manySpheres = () => {
             new SolidColor(new Vec3(0.9, 0.9, 0.9)),
         ),
     );
-    world.add(new Sphere(new Vec3(0, -1000, 0), 1000, groundMaterial));
+    world.add(Sphere.stationary(new Vec3(0, -1000, 0), 1000, groundMaterial));
 
     for (let a = -11; a < 11; a++) {
         for (let b = -11; b < 11; b++) {
             const center = new Vec3(a + 0.9 * Interval.unit.random(), 0.2, b + 0.9 * Interval.unit.random());
 
             if (center.minus(new Vec3(4, 0.2, 0)).length > 0.9) {
-                world.add(new Sphere(center, 0.2, randomMaterial()));
+                const endCenter = center.plus(new Vec3(0, new Interval(0, 0.5).random(), 0));
+                world.add(Sphere.moving(center, endCenter, 0.2, randomMaterial()));
             }
         }
     }
 
     const material1 = new Dielectric(1.5);
-    world.add(new Sphere(new Vec3(0, 1, 0), 1.0, material1));
+    world.add(Sphere.stationary(new Vec3(0, 1, 0), 1.0, material1));
 
     const material2 = new Lambert(new SolidColor(new Vec3(0.4, 0.2, 0.1)));
-    world.add(new Sphere(new Vec3(-4, 1, 0), 1.0, material2));
+    world.add(Sphere.stationary(new Vec3(-4, 1, 0), 1.0, material2));
 
     const material3 = new Metal(new Vec3(0.7, 0.6, 0.5), 0.0);
-    world.add(new Sphere(new Vec3(4, 1, 0), 1.0, material3));
+    world.add(Sphere.stationary(new Vec3(4, 1, 0), 1.0, material3));
 
     return new Scene(world.toBVH(), {
         verticalFov: 20,
@@ -123,8 +124,8 @@ export const checkeredSpheres = () => {
     const world = new HittableList();
 
     const checker = new Checker(0.32, new SolidColor(new Vec3(0.2, 0.3, 0.1)), new SolidColor(new Vec3(0.9, 0.9, 0.9)));
-    world.add(new Sphere(new Vec3(0, -10, 0), 10, new Lambert(checker)));
-    world.add(new Sphere(new Vec3(0, 10, 0), 10, new Lambert(checker)));
+    world.add(Sphere.stationary(new Vec3(0, -10, 0), 10, new Lambert(checker)));
+    world.add(Sphere.stationary(new Vec3(0, 10, 0), 10, new Lambert(checker)));
 
     return new Scene(world.toBVH(), {
         verticalFov: 20,
@@ -141,8 +142,8 @@ export const perlinSpheres = () => {
     const world = new HittableList();
 
     const perlin = new TurbulenceTexture(new Perlin(), 4);
-    world.add(new Sphere(new Vec3(0, -1000, 0), 1000, new Lambert(perlin)));
-    world.add(new Sphere(new Vec3(0, 2, 0), 2, new Lambert(perlin)));
+    world.add(Sphere.stationary(new Vec3(0, -1000, 0), 1000, new Lambert(perlin)));
+    world.add(Sphere.stationary(new Vec3(0, 2, 0), 2, new Lambert(perlin)));
 
     return new Scene(world.toBVH(), {
         verticalFov: 20,
@@ -182,11 +183,11 @@ export const simpleLight = () => {
     const world = new HittableList();
 
     const perlin = new NoiseTexture(new Perlin(), 4);
-    world.add(new Sphere(new Vec3(0, -1000, 0), 1000, new Lambert(perlin)));
-    world.add(new Sphere(new Vec3(0, 2, 0), 2, new Lambert(perlin)));
+    world.add(Sphere.stationary(new Vec3(0, -1000, 0), 1000, new Lambert(perlin)));
+    world.add(Sphere.stationary(new Vec3(0, 2, 0), 2, new Lambert(perlin)));
 
     const light = new DiffuseLight(new SolidColor(new Vec3(10, 10, 10)));
-    world.add(new Sphere(new Vec3(0, 7, 0), 2, light));
+    world.add(Sphere.stationary(new Vec3(0, 7, 0), 2, light));
     world.add(new Quad(new Vec3(3, 1, -2), new Vec3(2, 0, 0), new Vec3(0, 2, 0), light));
 
     return new Scene(world.toBVH(), {

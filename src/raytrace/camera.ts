@@ -114,8 +114,9 @@ export class Camera {
 
         const origin = this.sceneOptions.defocusAngle <= 0 ? this.center : this.defocusDiskSample();
         const direction = pixelSample.minus(origin);
+        const time = Interval.unit.random();
 
-        return new Ray(origin, direction);
+        return new Ray(origin, direction, time);
     }
 
     private sampleSquare() {

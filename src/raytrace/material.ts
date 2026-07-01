@@ -29,7 +29,7 @@ export class Lambert extends Material {
             scatterDirection = hit.normal;
         }
 
-        const scattered = new Ray(hit.point, scatterDirection);
+        const scattered = new Ray(hit.point, scatterDirection, ray.time);
         const attenuation = this.texture.value(hit.u, hit.v, hit.point);
         return new MaterialResult(attenuation, scattered);
     }
@@ -46,7 +46,7 @@ export class Metal extends Material {
     public override scatter(ray: Ray, hit: HitResult): MaterialResult | null {
         const reflected = ray.direction.reflect(hit.normal);
         const fuzzed = reflected.unitVector.plus(Vec3.randomUnitVector().times(this.fuzz));
-        const scattered = new Ray(hit.point, fuzzed);
+        const scattered = new Ray(hit.point, fuzzed, ray.time);
 
         if (scattered.direction.dot(hit.normal) > 0) {
             return new MaterialResult(this.albedo, scattered);
@@ -75,7 +75,7 @@ export class Dielectric extends Material {
                 ? unitDirection.reflect(hit.normal)
                 : unitDirection.refract(hit.normal, refractionIndex);
 
-        return new MaterialResult(Vec3.one, new Ray(hit.point, direction));
+        return new MaterialResult(Vec3.one, new Ray(hit.point, direction, ray.time));
     }
 
     private reflectance(cosine: number) {

@@ -5,6 +5,7 @@ export class Ray {
     constructor(
         public origin: Point3,
         public direction: Vec3,
+        public time: number,
     ) {}
 
     public at(t: number): Point3 {
@@ -51,19 +52,39 @@ export abstract class Hittable {
 }
 
 export class Sphere extends Hittable {
+    public static stationary(staticCenter: Point3, radius: number, material: Material) {
+        const center = new Ray(staticCenter, Vec3.zero, 0);
+
+        const radiusVec = Vec3.of(radius);
+        const boundingBox = BoundingBox.corners(staticCenter.minus(radiusVec), staticCenter.plus(radiusVec));
+
+        return new Sphere(center, radius, material, boundingBox);
+    }
+
+    public static moving(startCenter: Point3, endCenter: Point3, radius: number, material: Material) {
+        const center = new Ray(startCenter, endCenter.minus(startCenter), 0);
+
+        const radiusVec = Vec3.of(radius);
+        const startBox = BoundingBox.corners(center.at(0).minus(radiusVec), center.at(0).plus(radiusVec));
+        const endBox = BoundingBox.corners(center.at(1).minus(radiusVec), center.at(1).plus(radiusVec));
+        const boundingBox = startBox.join(endBox);
+
+        return new Sphere(center, radius, material, boundingBox);
+    }
+
     constructor(
-        public center: Point3,
-        public radius: number,
-        public material: Material,
+        private center: Ray,
+        private radius: number,
+        private material: Material,
+        public boundingBox: BoundingBox,
     ) {
         super();
-        const radiusVec = Vec3.of(this.radius);
-        this.boundingBox = BoundingBox.corners(this.center.minus(radiusVec), this.center.plus(radiusVec));
     }
 
     public override hit(ray: Ray, rayT: Interval): HitResult | null {
         // Heavily optimized code version of using the quadratic formula to solve sphere equation x^2+y^2+z^2=r^2 using vectors
-        const oc = this.center.minus(ray.origin);
+        const currentCenter = this.center.at(ray.time);
+        const oc = currentCenter.minus(ray.origin);
         const a = ray.direction.lengthSquared;
         const h = ray.direction.dot(oc);
         const c = oc.lengthSquared - this.radius ** 2;
@@ -79,7 +100,7 @@ export class Sphere extends Hittable {
 
         const t = root;
         const point = ray.at(t);
-        const outwardNormal = point.minus(this.center).div(this.radius);
+        const outwardNormal = point.minus(currentCenter).div(this.radius);
 
         const theta = Math.acos(-point.y);
         const phi = Math.atan2(-point.z, point.x) + Math.PI;
